@@ -14,7 +14,9 @@ use Grav\Plugin\Login\Events\UserLoginEvent;
 use Grav\Plugin\Mambers\MudMambersApiBridgeController;
 use Grav\Plugin\Mambers\MudMambersConfig;
 use Grav\Plugin\Mambers\MudMambersPermissions;
+use Grav\Plugin\Mambers\MudMambersProfile;
 use Grav\Plugin\Mambers\MudMambersRouter;
+use Grav\Plugin\Mambers\MudMambersTheme;
 use RocketTheme\Toolbox\Event\Event;
 
 class MambersPlugin extends Plugin
@@ -26,8 +28,9 @@ class MambersPlugin extends Plugin
             'onUserLoginRegisterData' => ['onUserLoginRegisterData', 0],
             'onUserLoginRegistered' => ['onUserLoginRegistered', 0],
             'onUserLoginAuthorize' => ['onUserLoginAuthorize', 5],
+            'onUserLoginAuthorized' => ['onUserLoginAuthorized', 0],
             PageAuthorizeEvent::class => ['onPageAuthorizeEvent', -5000],
-            'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000]],
+            'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000], ['syncLoginIntegration', 0]],
             'onPagesInitialized' => ['onPagesInitialized', 0],
             'onPageNotFound' => ['onPagesInitialized', 0],
             'onTwigLoader' => ['onTwigLoader', 0],
@@ -77,6 +80,37 @@ class MambersPlugin extends Plugin
 
         require_once __DIR__ . '/classes/MudMambersApiBridgeController.php';
         require_once __DIR__ . '/classes/MudMambersApi.php';
+    }
+
+    public function syncLoginIntegration(): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        require_once __DIR__ . '/classes/MudMambersProfile.php';
+
+        $profileMe = MudMambersProfile::profileMeRoute($this->grav);
+        $loginRoute = (string) MudMambersConfig::get($this->grav, 'redirect_anonymous_to', '/login');
+        $afterLogin = (string) MudMambersConfig::get($this->grav, 'redirect_after_login', $profileMe);
+        if ($afterLogin === '') {
+            $afterLogin = $profileMe;
+        }
+
+        $this->config->set('plugins.login.redirect_after_login', $afterLogin);
+        $this->config->set('plugins.login.route_after_login', $afterLogin);
+
+        if (!(bool) MudMambersConfig::get($this->grav, 'public_registration', true)) {
+            return;
+        }
+
+        $afterRegister = (string) MudMambersConfig::get($this->grav, 'redirect_after_registration', $loginRoute);
+        if ($afterRegister === '') {
+            $afterRegister = $loginRoute;
+        }
+
+        $this->config->set('plugins.login.user_registration.options.login_after_registration', (bool) MudMambersConfig::get($this->grav, 'login_after_registration', false));
+        $this->config->set('plugins.login.user_registration.redirect_after_registration', $afterRegister);
     }
 
     public function onUserLoginRegisterData(Event $event): void
@@ -142,6 +176,20 @@ class MambersPlugin extends Plugin
         $event->setMessage('Your membership has expired. Please renew to continue.', 'error');
         $event->setStatus(UserLoginEvent::AUTHORIZATION_DENIED);
         $event->stopPropagation();
+    }
+
+    public function onUserLoginAuthorized(UserLoginEvent $event): void
+    {
+        if (!$this->isEnabled() || $event->getStatus() === UserLoginEvent::AUTHORIZATION_DENIED) {
+            return;
+        }
+
+        require_once __DIR__ . '/classes/MudMambersProfile.php';
+
+        $afterLogin = (string) MudMambersConfig::get($this->grav, 'redirect_after_login', MudMambersProfile::profileMeRoute($this->grav));
+        if ($afterLogin !== '') {
+            $event->defRedirect($afterLogin);
+        }
     }
 
     public function onPageAuthorizeEvent(PageAuthorizeEvent $event): void
@@ -309,6 +357,7 @@ class MambersPlugin extends Plugin
         }
 
         $this->grav['assets']->add('plugin://mambers/assets/mambers-auth.css');
+        $this->grav['twig']->twig_vars['mambers_theme_layout'] = MudMambersTheme::resolveLayout($this->grav);
         $this->grav['twig']->template = $skins[$template];
     }
 

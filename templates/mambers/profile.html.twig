@@ -1,20 +1,33 @@
-{% extends 'mambers/layout.html.twig' %}
+{% extends 'mambers/theme-page.html.twig' %}
 
-{% block content %}
+{% block mambers_content %}
 <article class="mambers-profile">
-  {% if profile.cover %}
-  <div class="mambers-profile-cover" style="background-image:url('{{ profile.cover|e('html_attr') }}')"></div>
-  {% else %}
-  <div class="mambers-profile-cover mambers-profile-cover--empty"></div>
-  {% endif %}
-
-  <div class="mambers-profile-head">
-    <img class="mambers-avatar mambers-avatar--lg" src="{{ profile.avatar|e('html_attr') }}" alt="" width="96" height="96">
-    <div>
-      <h1>{{ profile.display_name|e }}</h1>
-      <p class="mambers-muted">@{{ profile.username|e }} · {{ profile.tier|e }}{% if profile.member_since %} · since {{ profile.member_since|e }}{% endif %}</p>
+  <header class="mambers-hero">
+    <div class="mambers-hero-cover{% if not profile.cover %} mambers-hero-cover--empty{% endif %}"
+      {% if profile.cover %}style="background-image:url('{{ profile.cover|e('html_attr') }}')"{% endif %}>
+      {% if profile.can_edit %}
+      <button type="button" class="mambers-hero-edit mambers-hero-edit--cover" data-mambers-open="cover" aria-label="Change cover photo">
+        <span class="mambers-hero-edit-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M9 2 7.2 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.2L15 2H9Zm3 15.6a5.6 5.6 0 1 1 0-11.2 5.6 5.6 0 0 1 0 11.2Z"/></svg></span>
+        <span>Edit cover</span>
+      </button>
+      {% endif %}
+      <div class="mambers-hero-gradient" aria-hidden="true"></div>
+      <div class="mambers-hero-identity">
+        <div class="mambers-hero-avatar-wrap">
+          <img class="mambers-hero-avatar" src="{{ profile.avatar|e('html_attr') }}" alt="" width="128" height="128">
+          {% if profile.can_edit %}
+          <button type="button" class="mambers-hero-edit mambers-hero-edit--avatar" data-mambers-open="avatar" aria-label="Change profile photo">
+            <span class="mambers-hero-edit-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M9 2 7.2 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.2L15 2H9Zm3 15.6a5.6 5.6 0 1 1 0-11.2 5.6 5.6 0 0 1 0 11.2Z"/></svg></span>
+          </button>
+          {% endif %}
+        </div>
+        <div class="mambers-hero-text">
+          <h1>{{ profile.display_name|e }}</h1>
+          <p class="mambers-muted">@{{ profile.username|e }} · {{ profile.tier|e }}{% if profile.member_since %} · since {{ profile.member_since|e }}{% endif %}</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </header>
 
   {% if saved %}
   <p class="mambers-flash">Profile saved.</p>
@@ -22,49 +35,90 @@
   {% if cover_saved %}
   <p class="mambers-flash">Cover updated.</p>
   {% endif %}
-
-  {% if profile.bio %}
-  <div class="mambers-bio">{{ profile.bio|e|nl2br }}</div>
+  {% if avatar_saved %}
+  <p class="mambers-flash">Profile photo updated.</p>
   {% endif %}
 
-  {% if profile.links %}
-  <ul class="mambers-links">
-    {% for link in profile.links %}
-    <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer">{{ link.title|e }}</a></li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+  <div class="mambers-profile-body">
+    {% if profile.can_edit %}
+    <nav class="mambers-account-bar" aria-label="Account">
+      {% set logoutPath = (grav.login.getRoute('login', true)|trim('/')) ~ '/task' ~ config.system.param_sep ~ 'login.logout' %}
+      <a class="mambers-link mambers-logout" href="{{ url(uri.addNonce(logoutPath, 'logout-form', 'logout-nonce')) }}">Log out</a>
+    </nav>
+    {% endif %}
 
-  {% if profile.can_edit %}
-  <section class="mambers-edit">
-    <h2>Edit profile</h2>
-    <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
-      <label>Bio
-        <textarea name="profile_bio" rows="4" maxlength="500">{{ profile.bio|e }}</textarea>
-      </label>
-      <label class="mambers-check">
-        <input type="checkbox" name="profile_public" value="1"{% if profile.profile_public %} checked{% endif %}>
-        Show in public directory
-      </label>
+    {% if profile.bio %}
+    <div class="mambers-bio">{{ profile.bio|e|nl2br }}</div>
+    {% endif %}
 
-      <h3>Link in bio <span class="mambers-muted">(max {{ profile.max_links }})</span></h3>
-      {% for i in 0..(profile.max_links - 1) %}
-      {% set link = profile.links[i]|default(null) %}
-      <div class="mambers-link-row">
-        <input type="text" name="link_title[]" placeholder="Title" value="{{ link ? link.title|e('html_attr') : '' }}">
-        <input type="url" name="link_url[]" placeholder="https://…" value="{{ link ? link.url|e('html_attr') : '' }}">
-      </div>
+    {% if profile.links %}
+    <ul class="mambers-links">
+      {% for link in profile.links %}
+      <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer">{{ link.title|e }}</a></li>
       {% endfor %}
+    </ul>
+    {% endif %}
 
-      <button type="submit">Save profile</button>
-    </form>
+    {% if profile.can_edit %}
+    <section class="mambers-edit">
+      <h2>Edit profile</h2>
+      <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
+        <label>Bio
+          <textarea name="profile_bio" rows="4" maxlength="500">{{ profile.bio|e }}</textarea>
+        </label>
+        <label class="mambers-check">
+          <input type="checkbox" name="profile_public" value="1"{% if profile.profile_public %} checked{% endif %}>
+          Show in public directory
+        </label>
 
-    <form class="mambers-cover-form" method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/cover" enctype="multipart/form-data">
-      <h3>Cover image <span class="mambers-muted">(also social share OG image)</span></h3>
-      <input type="file" name="profile_cover" accept="image/jpeg,image/png,image/webp,image/gif" required>
-      <button type="submit">Upload cover</button>
-    </form>
-  </section>
-  {% endif %}
+        <h3>Link in bio <span class="mambers-muted">(max {{ profile.max_links }})</span></h3>
+        {% for i in 0..(profile.max_links - 1) %}
+        {% set link = profile.links[i]|default(null) %}
+        <div class="mambers-link-row">
+          <input type="text" name="link_title[]" placeholder="Title" value="{{ link ? link.title|e('html_attr') : '' }}">
+          <input type="url" name="link_url[]" placeholder="https://…" value="{{ link ? link.url|e('html_attr') : '' }}">
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="mambers-btn">Save profile</button>
+      </form>
+    </section>
+
+    <div class="mambers-modal" id="mambers-modal-cover" hidden>
+      <div class="mambers-modal-backdrop" data-mambers-close tabindex="-1"></div>
+      <div class="mambers-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mambers-modal-cover-title">
+        <h2 id="mambers-modal-cover-title">Update cover photo</h2>
+        <p class="mambers-muted">Also used as your social share image (og:image).</p>
+        <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/cover" enctype="multipart/form-data">
+          <label class="mambers-file-label">
+            <span>Choose image</span>
+            <input type="file" name="profile_cover" accept="image/jpeg,image/png,image/webp,image/gif" required>
+          </label>
+          <div class="mambers-modal-actions">
+            <button type="button" class="mambers-btn mambers-btn--ghost" data-mambers-close>Cancel</button>
+            <button type="submit" class="mambers-btn">Upload cover</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mambers-modal" id="mambers-modal-avatar" hidden>
+      <div class="mambers-modal-backdrop" data-mambers-close tabindex="-1"></div>
+      <div class="mambers-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mambers-modal-avatar-title">
+        <h2 id="mambers-modal-avatar-title">Update profile photo</h2>
+        <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/avatar" enctype="multipart/form-data">
+          <label class="mambers-file-label">
+            <span>Choose image</span>
+            <input type="file" name="profile_avatar" accept="image/jpeg,image/png,image/webp,image/gif" required>
+          </label>
+          <div class="mambers-modal-actions">
+            <button type="button" class="mambers-btn mambers-btn--ghost" data-mambers-close>Cancel</button>
+            <button type="submit" class="mambers-btn">Upload photo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </article>
 {% endblock %}

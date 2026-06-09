@@ -31,16 +31,19 @@ final class MudMambersAccounts
     /** @return list<UserInterface> */
     public static function memberAccounts(Grav $grav): array
     {
-        $locator = $grav['locator'];
-        $accountsDir = $locator->findResource('account://', true);
-        if (!$accountsDir || !is_dir($accountsDir)) {
+        $accountsDir = self::accountsDirectory($grav);
+        if ($accountsDir === null) {
             return [];
         }
 
         $users = [];
-        foreach (glob($accountsDir . '/*.yaml') ?: [] as $file) {
-            $username = basename((string) $file, '.yaml');
-            if ($username === '' || $username === '.') {
+        foreach (scandir($accountsDir) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..' || !str_ends_with($entry, '.yaml')) {
+                continue;
+            }
+
+            $username = basename($entry, '.yaml');
+            if ($username === '' || $username[0] === '.') {
                 continue;
             }
 
@@ -65,6 +68,22 @@ final class MudMambersAccounts
             return false;
         }
 
-        return $user->authorize('site.member') || $user->authorize('site.login');
+        return MudMambersPermissions::hasPermission($user, 'site.member');
+    }
+
+    private static function accountsDirectory(Grav $grav): ?string
+    {
+        $locator = $grav['locator'];
+        foreach ([
+            $locator->findResource('account://'),
+            $locator->findResource('account://', false, true),
+            defined('GRAV_ROOT') ? GRAV_ROOT . '/user/accounts' : null,
+        ] as $dir) {
+            if (is_string($dir) && $dir !== '' && is_dir($dir)) {
+                return $dir;
+            }
+        }
+
+        return null;
     }
 }

@@ -1,0 +1,12 @@
+{% extends mambers_theme_layout|default('default.html.twig') %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url('plugin://mambers/assets/mambers-profiles.css') }}">
+<div class="mambers-shell">
+  {% block mambers_content %}{% endblock %}
+</div>
+{% include 'mambers/partials/site-foot.html.twig' %}
+{% if profile.can_edit|default(false) %}
+<script src="{{ url('plugin://mambers/assets/mambers-profiles.js') }}" defer></script>
+{% endif %}
+{% endblock %}

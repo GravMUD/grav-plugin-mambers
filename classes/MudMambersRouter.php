@@ -35,6 +35,12 @@ final class MudMambersRouter
             return true;
         }
 
+        if ($rest === 'avatar' || str_starts_with($rest, 'avatar/')) {
+            $this->serveAvatar(substr($rest, strlen('avatar/')));
+
+            return true;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^([a-z0-9][a-z0-9._-]{1,31})/save$#i', $rest, $m)) {
             $this->handleSave(strtolower($m[1]));
 
@@ -43,6 +49,12 @@ final class MudMambersRouter
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^([a-z0-9][a-z0-9._-]{1,31})/cover$#i', $rest, $m)) {
             $this->handleCoverUpload(strtolower($m[1]));
+
+            return true;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^([a-z0-9][a-z0-9._-]{1,31})/avatar$#i', $rest, $m)) {
+            $this->handleAvatarUpload(strtolower($m[1]));
 
             return true;
         }
@@ -74,13 +86,13 @@ final class MudMambersRouter
     {
         /** @var UserInterface $user */
         $user = $this->grav['user'];
-        if (!$user->exists() || !(string) $user->username()) {
+        if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $login = (string) MudMambersConfig::get($this->grav, 'redirect_anonymous_to', '/login');
             header('Location: ' . $login, true, 302);
             exit;
         }
 
-        header('Location: ' . MudMambersProfile::profilePageUrl($this->grav, (string) $user->username()), true, 302);
+        header('Location: ' . MudMambersProfile::profilePageUrl($this->grav, MudMambersProfile::usernameOf($user)), true, 302);
         exit;
     }
 
@@ -113,7 +125,7 @@ final class MudMambersRouter
         /** @var UserInterface $sessionUser */
         $sessionUser = $this->grav['user'];
         $canEdit = $sessionUser->exists()
-            && (string) $sessionUser->username() === $username
+            && MudMambersProfile::usernameOf($sessionUser) === $username
             && $sessionUser->authorize('site.login');
 
         if (!MudMambersProfile::isPublic($user) && !$canEdit) {
@@ -134,6 +146,7 @@ final class MudMambersRouter
             'og_title' => $profile['display_name'],
             'saved' => !empty($_GET['saved']),
             'cover_saved' => !empty($_GET['cover']),
+            'avatar_saved' => !empty($_GET['avatar']),
             'directory_url' => rtrim((string) $this->grav['base_url'], '/') . '/' . trim((string) MudMambersConfig::get($this->grav, 'profile_route_prefix', 'members'), '/'),
         ]);
     }
@@ -142,7 +155,7 @@ final class MudMambersRouter
     {
         /** @var UserInterface $sessionUser */
         $sessionUser = $this->grav['user'];
-        if (!$sessionUser->exists() || (string) $sessionUser->username() !== $username) {
+        if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
             exit;
@@ -168,7 +181,7 @@ final class MudMambersRouter
     {
         /** @var UserInterface $sessionUser */
         $sessionUser = $this->grav['user'];
-        if (!$sessionUser->exists() || (string) $sessionUser->username() !== $username) {
+        if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
             exit;
@@ -186,6 +199,28 @@ final class MudMambersRouter
         exit;
     }
 
+    private function handleAvatarUpload(string $username): void
+    {
+        /** @var UserInterface $sessionUser */
+        $sessionUser = $this->grav['user'];
+        if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
+            http_response_code(403);
+            echo 'Forbidden';
+            exit;
+        }
+
+        try {
+            MudMambersProfile::storeAvatarUpload($this->grav, $sessionUser, $_FILES['profile_avatar'] ?? []);
+        } catch (\Throwable $e) {
+            http_response_code(400);
+            echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+            exit;
+        }
+
+        header('Location: ' . MudMambersProfile::profilePageUrl($this->grav, $username) . '?avatar=1', true, 302);
+        exit;
+    }
+
     private function serveCover(string $username): void
     {
         $username = strtolower(trim($username, '/'));
@@ -200,6 +235,28 @@ final class MudMambersRouter
             exit;
         }
 
+        $this->sendImageFile($file);
+    }
+
+    private function serveAvatar(string $username): void
+    {
+        $username = strtolower(trim($username, '/'));
+        if (!MudMambersAccounts::isValidUsername($username)) {
+            http_response_code(404);
+            exit;
+        }
+
+        $file = MudMambersProfile::avatarFilePath($this->grav, $username);
+        if ($file === null) {
+            http_response_code(404);
+            exit;
+        }
+
+        $this->sendImageFile($file);
+    }
+
+    private function sendImageFile(string $file): void
+    {
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         $mimes = [
             'jpg' => 'image/jpeg',
@@ -236,12 +293,26 @@ final class MudMambersRouter
     private function renderTwig(string $template, array $vars): void
     {
         $siteTitle = (string) $this->grav['config']->get('site.title', 'Grav');
+        $pageTitle = (string) ($vars['page_title'] ?? 'Members');
+        $metaDescription = (string) ($vars['meta_description'] ?? 'Member profiles on Grav');
+
         $vars['site_title'] = $siteTitle;
         $vars['base_url'] = rtrim((string) $this->grav['base_url'], '/');
         $vars['css_url'] = $vars['base_url'] . '/user/plugins/mambers/assets/mambers-profiles.css';
         $vars['linkz_cta_url'] = (string) MudMambersConfig::get($this->grav, 'linkz_cta_url', 'https://linkz.live/getgrav');
+        $vars['header'] = [
+            'title' => $pageTitle,
+            'metadata' => ['description' => $metaDescription],
+        ];
+        $vars['mambers_theme_layout'] = MudMambersTheme::resolveLayout($this->grav);
 
-        $html = (string) $this->grav['twig']->processTemplate('mambers/' . $template, $vars);
+        MudMambersTheme::hydrateContext($this->grav, $pageTitle, $metaDescription);
+
+        $twig = $this->grav['twig'];
+        $twig->twig_vars['page_title'] = $pageTitle;
+        $twig->twig_vars['meta_description'] = $metaDescription;
+
+        $html = (string) $twig->processTemplate('mambers/' . $template, $vars);
         header('Content-Type: text/html; charset=UTF-8');
         echo $html;
         exit;

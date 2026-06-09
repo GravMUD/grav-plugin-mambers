@@ -1,0 +1,7 @@
+{% extends mambers_theme_layout|default('default.html.twig') %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url('plugin://mambers/assets/mambers-auth.css') }}">
+{% block mambers_auth_content %}{% endblock %}
+{% include 'mambers/partials/site-foot.html.twig' %}
+{% endblock %}

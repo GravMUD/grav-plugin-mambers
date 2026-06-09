@@ -14,6 +14,15 @@ final class MudMambersProfile
         return MudMambersConfig::isPro($grav) ? 50 : max(1, (int) MudMambersConfig::get($grav, 'lite_link_limit', 5));
     }
 
+    public static function usernameOf(UserInterface $user): string
+    {
+        if (method_exists($user, 'username')) {
+            return (string) $user->username();
+        }
+
+        return (string) ($user->username ?? $user->get('username') ?? '');
+    }
+
     public static function isPublic(UserInterface $user): bool
     {
         $flag = $user->get('profile_public');
@@ -31,14 +40,26 @@ final class MudMambersProfile
             return $full;
         }
 
-        return (string) $user->username();
+        return self::usernameOf($user);
     }
 
     public static function avatarUrl(Grav $grav, UserInterface $user): string
     {
-        $avatar = trim((string) $user->get('avatar'));
-        if ($avatar !== '') {
-            return self::absoluteUrl($grav, $avatar);
+        $stored = trim((string) $user->get('profile_avatar'));
+        if ($stored !== '') {
+            if (str_starts_with($stored, 'http://') || str_starts_with($stored, 'https://')) {
+                return $stored;
+            }
+
+            $prefix = trim((string) MudMambersConfig::get($grav, 'profile_route_prefix', 'members'), '/');
+            $username = self::usernameOf($user);
+
+            return rtrim((string) $grav['base_url'], '/') . '/' . $prefix . '/avatar/' . rawurlencode($username);
+        }
+
+        $avatar = $user->get('avatar');
+        if (is_string($avatar) && trim($avatar) !== '') {
+            return self::absoluteUrl($grav, trim($avatar));
         }
 
         $name = rawurlencode(self::displayName($user));
@@ -58,7 +79,7 @@ final class MudMambersProfile
         }
 
         $prefix = trim((string) MudMambersConfig::get($grav, 'profile_route_prefix', 'members'), '/');
-        $username = (string) $user->username();
+        $username = MudMambersProfile::usernameOf($user);
 
         return rtrim((string) $grav['base_url'], '/') . '/' . $prefix . '/cover/' . rawurlencode($username);
     }
@@ -93,7 +114,7 @@ final class MudMambersProfile
         $bio = trim((string) $user->get('profile_bio'));
 
         return [
-            'username' => (string) $user->username(),
+            'username' => MudMambersProfile::usernameOf($user),
             'display_name' => self::displayName($user),
             'avatar' => self::avatarUrl($grav, $user),
             'cover' => self::coverUrl($grav, $user),
@@ -103,7 +124,7 @@ final class MudMambersProfile
             'tier' => (string) ($user->get('member_tier') ?: 'basic'),
             'member_since' => $user->get('member_since'),
             'profile_public' => self::isPublic($user),
-            'profile_url' => self::profilePageUrl($grav, (string) $user->username()),
+            'profile_url' => self::profilePageUrl($grav, MudMambersProfile::usernameOf($user)),
             'can_edit' => $canEdit,
             'max_links' => self::maxLinks($grav),
         ];
@@ -116,20 +137,51 @@ final class MudMambersProfile
         return rtrim((string) $grav['base_url'], '/') . '/' . $prefix . '/' . rawurlencode($username);
     }
 
+    public static function profileMeUrl(Grav $grav): string
+    {
+        return rtrim((string) $grav['base_url'], '/') . self::profileMeRoute($grav);
+    }
+
+    public static function profileMeRoute(Grav $grav): string
+    {
+        $prefix = trim((string) MudMambersConfig::get($grav, 'profile_route_prefix', 'members'), '/');
+
+        return '/' . $prefix . '/me';
+    }
+
     public static function coversDir(Grav $grav): string
     {
-        $dir = $grav['locator']->findResource('user://data/mambers/covers', true, true);
-        if (!is_dir(dirname((string) $dir))) {
-            $parent = $grav['locator']->findResource('user://data/mambers', true, true);
-            if ($parent && !is_dir($parent)) {
-                mkdir($parent, 0775, true);
-            }
-        }
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        return self::mediaDir($grav, 'covers');
+    }
+
+    public static function avatarsDir(Grav $grav): string
+    {
+        return self::mediaDir($grav, 'avatars');
+    }
+
+    public static function avatarFilePath(Grav $grav, string $username): ?string
+    {
+        $user = MudMambersAccounts::load($grav, $username);
+        if ($user === null) {
+            return null;
         }
 
-        return (string) $dir;
+        $stored = trim((string) $user->get('profile_avatar'));
+        if ($stored === '' || str_starts_with($stored, 'http://') || str_starts_with($stored, 'https://')) {
+            return null;
+        }
+
+        $path = $stored;
+        if (!str_starts_with($path, 'user/')) {
+            $path = 'user/data/mambers/avatars/' . basename($path);
+        }
+
+        $file = GRAV_ROOT . '/' . ltrim($path, '/');
+        if (!is_file($file)) {
+            return null;
+        }
+
+        return $file;
     }
 
     public static function coverFilePath(Grav $grav, string $username): ?string
@@ -186,44 +238,17 @@ final class MudMambersProfile
 
     public static function storeCoverUpload(Grav $grav, UserInterface $user, array $file): string
     {
-        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            throw new \RuntimeException('Cover upload failed.');
-        }
-
-        $tmp = (string) ($file['tmp_name'] ?? '');
-        if ($tmp === '' || !is_uploaded_file($tmp)) {
-            throw new \RuntimeException('Invalid upload.');
-        }
-
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime = (string) $finfo->file($tmp);
-        $extMap = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-            'image/gif' => 'gif',
-        ];
-        if (!isset($extMap[$mime])) {
-            throw new \RuntimeException('Cover must be JPEG, PNG, WebP, or GIF.');
-        }
-
-        $username = (string) $user->username();
-        $dir = self::coversDir($grav);
-        $filename = $username . '.' . $extMap[$mime];
-        $dest = $dir . '/' . $filename;
-
-        foreach (glob($dir . '/' . $username . '.*') ?: [] as $old) {
-            if (is_file($old) && $old !== $dest) {
-                @unlink($old);
-            }
-        }
-
-        if (!move_uploaded_file($tmp, $dest)) {
-            throw new \RuntimeException('Could not save cover image.');
-        }
-
-        $relative = 'user/data/mambers/covers/' . $filename;
+        $relative = self::storeImageUpload($user, $file, self::coversDir($grav));
         $user->set('profile_cover', $relative);
+        $user->save();
+
+        return $relative;
+    }
+
+    public static function storeAvatarUpload(Grav $grav, UserInterface $user, array $file): string
+    {
+        $relative = self::storeImageUpload($user, $file, self::avatarsDir($grav));
+        $user->set('profile_avatar', $relative);
         $user->save();
 
         return $relative;
@@ -283,5 +308,63 @@ final class MudMambersProfile
     {
         return (bool) filter_var($url, FILTER_VALIDATE_URL)
             && (str_starts_with($url, 'http://') || str_starts_with($url, 'https://'));
+    }
+
+    private static function mediaDir(Grav $grav, string $subdir): string
+    {
+        $dir = $grav['locator']->findResource('user://data/mambers/' . $subdir, true, true);
+        if (!is_dir(dirname((string) $dir))) {
+            $parent = $grav['locator']->findResource('user://data/mambers', true, true);
+            if ($parent && !is_dir($parent)) {
+                mkdir($parent, 0775, true);
+            }
+        }
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        return (string) $dir;
+    }
+
+    private static function storeImageUpload(UserInterface $user, array $file, string $dir): string
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException('Upload failed.');
+        }
+
+        $tmp = (string) ($file['tmp_name'] ?? '');
+        if ($tmp === '' || !is_uploaded_file($tmp)) {
+            throw new \RuntimeException('Invalid upload.');
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = (string) $finfo->file($tmp);
+        $extMap = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+        ];
+        if (!isset($extMap[$mime])) {
+            throw new \RuntimeException('Image must be JPEG, PNG, WebP, or GIF.');
+        }
+
+        $username = self::usernameOf($user);
+        $filename = $username . '.' . $extMap[$mime];
+        $dest = $dir . '/' . $filename;
+
+        foreach (glob($dir . '/' . $username . '.*') ?: [] as $old) {
+            if (is_file($old) && $old !== $dest) {
+                @unlink($old);
+            }
+        }
+
+        if (!move_uploaded_file($tmp, $dest)) {
+            throw new \RuntimeException('Could not save image.');
+        }
+
+        $folder = basename($dir);
+
+        return 'user/data/mambers/' . $folder . '/' . $filename;
     }
 }

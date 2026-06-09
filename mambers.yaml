@@ -4,6 +4,9 @@ api_route: api/mud-mambers
 public_registration: true
 default_tier: basic
 redirect_anonymous_to: /login
+redirect_after_login: /members/me
+redirect_after_registration: /login
+login_after_registration: false
 tier_permissions:
   basic:
     - site.login
@@ -15,6 +18,7 @@ tier_permissions:
 member_only_routes: []
 profiles_enabled: true
 auth_skin: true
+profiles_theme_shell: true
 profile_route_prefix: members
 lite_link_limit: 5
 linkz_cta_url: https://linkz.live/getgrav

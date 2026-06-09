@@ -1,9 +1,9 @@
-{% extends 'mambers/layout.html.twig' %}
+{% extends 'mambers/theme-page.html.twig' %}
 
-{% block content %}
+{% block mambers_content %}
 <section class="mambers-empty-page">
   <h1>Member not found</h1>
   <p class="mambers-muted">That profile is private or does not exist.</p>
-  <p><a href="{{ directory_url|default(base_url ~ '/members')|e('html_attr') }}">← Back to directory</a></p>
+  <p><a class="mambers-link" href="{{ directory_url|default(base_url ~ '/members')|e('html_attr') }}">← Back to directory</a></p>
 </section>
 {% endblock %}

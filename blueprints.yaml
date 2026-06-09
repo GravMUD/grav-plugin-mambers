@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.2.2
+version: 0.2.4
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:
@@ -69,6 +69,22 @@ form:
               type: text
               label: Redirect hint for anonymous member pages
               default: /login
+            redirect_after_login:
+              type: text
+              label: After login redirect
+              default: /members/me
+              help: Members land on own profile (/members/me) with edit form.
+            redirect_after_registration:
+              type: text
+              label: After registration redirect
+              default: /login
+            login_after_registration:
+              type: toggle
+              label: Auto-login after registration
+              default: 0
+              help: Off = register then sign in at /login (recommended).
+              validate:
+                type: bool
         profiles:
           type: tab
           title: Profiles (Lite)
@@ -86,6 +102,14 @@ form:
               highlight: 1
               default: 1
               help: Mambers dark card skin on Login plugin pages (not 2005 Grav default)
+              validate:
+                type: bool
+            profiles_theme_shell:
+              type: toggle
+              label: Use active theme layout
+              highlight: 1
+              default: 1
+              help: Wrap profiles in the theme default/base template (header + footer). Off = Mambers standalone layout.
               validate:
                 type: bool
             profile_route_prefix:

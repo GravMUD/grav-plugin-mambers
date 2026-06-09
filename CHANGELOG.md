@@ -1,5 +1,33 @@
 # Changelog — Mambers
 
+## 0.2.4 — 2026-06-09 (profile hero + theme shell)
+
+### Added
+
+- **GetGRAV theme shell** — directory, profile, not-found, **login**, and **register** use the **active theme layout** (`default.html.twig` → header/footer), not a Mambers-only island
+- Theme resolver falls back `default.html.twig` → `partials/base.html.twig` → plugin layout (Quark, grav-mud-site, GetGRAV all supported)
+- GetGRAV `gg-foot` only when `grav_mud_goggrav.mudSite` is on; standard themes use their own footer
+- **FB/Twitter-style profile hero** — cover + avatar + name embedded in one banner with bottom gradient
+- **Cover & avatar edit buttons** on the hero — open upload modals (no more inline file forms)
+- **Avatar upload** — `POST /members/{username}/avatar`, served at `/members/avatar/{username}`
+- **Log out** link on own profile (`/members/me`)
+- Centred campaign footer (`gg-foot`) on Mambers pages
+
+### Changed
+
+- Directory cards use mini cover + overlapping avatar
+- Profile CSS uses GetGRAV `--gg-*` tokens when present
+- Mambers router hydrates standard Grav Twig context (`pages`, `page`, `onTwigSiteVariables`) on virtual routes
+- Campaign footer (`gg-foot`) only on mud_site GetGRAV installs
+
+## 0.2.3 — 2026-06-09 (registration + directory fix)
+
+### Fixed
+
+- **Member directory empty** — account scan + permission check reads stored `access.site.member` (not session-only `authorize()`)
+- **Post-login redirect** → `/members/me` (own profile + edit form), not bare directory
+- **Post-registration** → `/login` (no auto-login) when `login_after_registration: false`
+
 ## 0.2.2 — 2026-06-09 (auth skin)
 
 ### Added

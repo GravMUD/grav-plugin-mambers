@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grav\Plugin\Mambers;
 
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Common\Utils;
 
 final class MudMambersPermissions
 {
@@ -50,6 +51,37 @@ final class MudMambersPermissions
         return $ts !== false && $ts < time();
     }
 
+    public static function hasPermission(UserInterface $user, string $permission): bool
+    {
+        if ($user->get('authenticated')) {
+            $authorized = $user->authorize($permission);
+            if ($authorized === true) {
+                return true;
+            }
+        }
+
+        $access = $user->get('access');
+        if (!is_array($access)) {
+            return false;
+        }
+
+        $value = Utils::getDotNotation($access, $permission);
+        if ($value !== null) {
+            return Utils::isPositive($value);
+        }
+
+        // Pro/moderator tiers store sibling keys like site.member.pro under site.
+        $scope = explode('.', $permission, 2);
+        if (count($scope) === 2) {
+            $site = $access[$scope[0]] ?? null;
+            if (is_array($site) && array_key_exists($scope[1], $site)) {
+                return Utils::isPositive($site[$scope[1]]);
+            }
+        }
+
+        return false;
+    }
+
     /** @return array<string, mixed> */
     public static function whoamiPayload(UserInterface $user): array
     {
@@ -70,7 +102,7 @@ final class MudMambersPermissions
 
         $permissions = [];
         foreach (['site.login', 'site.member', 'site.member.pro', 'site.member.moderator'] as $perm) {
-            if ($user->authorize($perm)) {
+            if (self::hasPermission($user, $perm)) {
                 $permissions[] = $perm;
             }
         }

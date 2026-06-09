@@ -111,7 +111,7 @@ class MudMambersApi
     {
         /** @var UserInterface $user */
         $user = $this->grav['user'];
-        if (!$user->exists() || !(string) $user->username()) {
+        if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
 
             return;
@@ -135,7 +135,7 @@ class MudMambersApi
         /** @var UserInterface $sessionUser */
         $sessionUser = $this->grav['user'];
         $canEdit = $sessionUser->exists()
-            && (string) $sessionUser->username() === $username
+            && MudMambersProfile::usernameOf($sessionUser) === $username
             && $sessionUser->authorize('site.login');
 
         if (!MudMambersProfile::isPublic($user) && !$canEdit) {
@@ -154,7 +154,7 @@ class MudMambersApi
     {
         /** @var UserInterface $user */
         $user = $this->grav['user'];
-        if (!$user->exists() || !(string) $user->username()) {
+        if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
 
             return;
@@ -176,7 +176,7 @@ class MudMambersApi
     {
         /** @var UserInterface $user */
         $user = $this->grav['user'];
-        if (!$user->exists() || !(string) $user->username()) {
+        if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
 
             return;

@@ -24,7 +24,7 @@ final class MudMambersDirectory
 
             if ($search !== '') {
                 $hay = strtolower(
-                    (string) $user->username() . ' ' . MudMambersProfile::displayName($user) . ' ' . (string) $user->get('profile_bio')
+                    MudMambersProfile::usernameOf($user) . ' ' . MudMambersProfile::displayName($user) . ' ' . (string) $user->get('profile_bio')
                 );
                 if (!str_contains($hay, $search)) {
                     continue;
@@ -56,13 +56,13 @@ final class MudMambersDirectory
         $bio = trim((string) $user->get('profile_bio'));
 
         return [
-            'username' => (string) $user->username(),
+            'username' => MudMambersProfile::usernameOf($user),
             'display_name' => MudMambersProfile::displayName($user),
             'avatar' => MudMambersProfile::avatarUrl($grav, $user),
             'cover' => MudMambersProfile::coverUrl($grav, $user),
             'bio_excerpt' => MudMambersProfile::excerpt($bio, 120),
             'tier' => (string) ($user->get('member_tier') ?: 'basic'),
-            'profile_url' => MudMambersProfile::profilePageUrl($grav, (string) $user->username()),
+            'profile_url' => MudMambersProfile::profilePageUrl($grav, MudMambersProfile::usernameOf($user)),
         ];
     }
 }
