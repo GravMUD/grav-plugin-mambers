@@ -10,24 +10,107 @@ use Grav\Common\Page\Page;
 
 final class MudMambersAuth
 {
+    private const DEFAULT_LOGIN_ROUTE = '/login';
+    private const DEFAULT_REGISTER_ROUTE = '/user_register';
+
+    public static function ensureLoginConfig(Grav $grav): void
+    {
+        if (!(bool) MudMambersConfig::get($grav, 'public_registration', true)) {
+            return;
+        }
+
+        $grav['config']->set('plugins.login.user_registration.enabled', true);
+
+        $registerRoute = $grav['config']->get('plugins.login.route_register');
+        if (!is_string($registerRoute) || trim($registerRoute) === '') {
+            $grav['config']->set('plugins.login.route_register', self::DEFAULT_REGISTER_ROUTE);
+        }
+
+        $loginRoute = $grav['config']->get('plugins.login.route');
+        if (!is_string($loginRoute) || trim($loginRoute) === '') {
+            $grav['config']->set('plugins.login.route', self::DEFAULT_LOGIN_ROUTE);
+        }
+    }
+
+    public static function registrationOpen(Grav $grav): bool
+    {
+        if (!(bool) MudMambersConfig::get($grav, 'public_registration', true)) {
+            return false;
+        }
+
+        self::ensureLoginConfig($grav);
+
+        return (bool) $grav['config']->get('plugins.login.user_registration.enabled', false);
+    }
+
+    public static function loginRoute(Grav $grav): string
+    {
+        self::ensureLoginConfig($grav);
+
+        if ($grav->offsetExists('login')) {
+            $route = $grav['login']->getRoute('login');
+            if (is_string($route) && trim($route) !== '') {
+                return '/' . trim($route, '/');
+            }
+        }
+
+        $route = $grav['config']->get('plugins.login.route');
+
+        return is_string($route) && trim($route) !== ''
+            ? '/' . trim($route, '/')
+            : self::DEFAULT_LOGIN_ROUTE;
+    }
+
+    public static function registerRoute(Grav $grav): string
+    {
+        if (!self::registrationOpen($grav)) {
+            return self::loginRoute($grav);
+        }
+
+        if ($grav->offsetExists('login')) {
+            $route = $grav['login']->getRoute('register');
+            if (is_string($route) && trim($route) !== '') {
+                return '/' . trim($route, '/');
+            }
+        }
+
+        $route = $grav['config']->get('plugins.login.route_register');
+
+        return is_string($route) && trim($route) !== ''
+            ? '/' . trim($route, '/')
+            : self::DEFAULT_REGISTER_ROUTE;
+    }
+
+    public static function authUrl(Grav $grav, string $route): string
+    {
+        $base = rtrim((string) $grav['base_url_relative'], '/');
+        $route = '/' . trim($route, '/');
+
+        return ($base === '' ? '' : $base) . $route;
+    }
+
+    public static function publishTwigVars(Grav $grav): void
+    {
+        self::ensureLoginConfig($grav);
+
+        $twig = $grav['twig'];
+        $twig->twig_vars['mambers_login_url'] = self::authUrl($grav, self::loginRoute($grav));
+        $twig->twig_vars['mambers_register_url'] = self::authUrl($grav, self::registerRoute($grav));
+        $twig->twig_vars['mambers_claim_url'] = self::authUrl($grav, MudMambersProfile::profileMeRoute($grav));
+        $twig->twig_vars['mambers_registration_open'] = self::registrationOpen($grav);
+    }
+
     /** @return 'login'|'register'|null */
     public static function authTypeForPath(Grav $grav): ?string
     {
-        if (!$grav->offsetExists('login')) {
-            return null;
-        }
-
         $path = trim((string) $grav['uri']->path(), '/');
         if ($path === '') {
             return null;
         }
 
-        /** @var \Grav\Plugin\Login\Login $login */
-        $login = $grav['login'];
-
         $map = [
-            trim((string) ($login->getRoute('login') ?? '/login'), '/') => 'login',
-            trim((string) ($login->getRoute('register', true) ?? '/user_register'), '/') => 'register',
+            trim(self::loginRoute($grav), '/') => 'login',
+            trim(self::registerRoute($grav), '/') => 'register',
         ];
 
         return $map[$path] ?? null;
@@ -53,6 +136,10 @@ final class MudMambersAuth
 
     public static function ensureVirtualAuthPages(Grav $grav): void
     {
+        if (!$grav->offsetExists('login')) {
+            return;
+        }
+
         $type = self::authTypeForPath($grav);
         if ($type === null) {
             return;

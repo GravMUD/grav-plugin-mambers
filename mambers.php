@@ -38,7 +38,7 @@ class MambersPlugin extends Plugin
             'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
             'onLoginPage' => ['onLoginPage', 0],
-            'onTwigSiteVariables' => ['onTwigSiteVariablesAuthSkin', -99900],
+            'onTwigSiteVariables' => [['onTwigSiteVariablesAuthSkin', -99900], ['onTwigSiteVariablesMambers', -99800]],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
 
@@ -88,6 +88,8 @@ class MambersPlugin extends Plugin
         if (!$this->isEnabled()) {
             return;
         }
+
+        MudMambersAuth::ensureLoginConfig($this->grav);
 
         if (!(bool) MudMambersConfig::get($this->grav, 'sync_login_redirects', false)) {
             return;
@@ -359,6 +361,15 @@ class MambersPlugin extends Plugin
         }
 
         MudMambersAuth::applyAuthSkin($this->grav);
+    }
+
+    public function onTwigSiteVariablesMambers(): void
+    {
+        if (!$this->isEnabled() || $this->isAdmin()) {
+            return;
+        }
+
+        MudMambersAuth::publishTwigVars($this->grav);
     }
 
     public function onApiCollectPublicRoutes(Event $event): void

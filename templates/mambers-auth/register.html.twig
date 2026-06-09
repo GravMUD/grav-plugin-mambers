@@ -7,7 +7,7 @@
     <h1>Join the village</h1>
     <p class="mambers-auth-lead">One account for member profiles, Messenger nick lock, and gated pages. No Meetup tax. No BuddyPress bloat.</p>
     {% include 'forms/form.html.twig' %}
-    <p class="mambers-auth-foot">Already a member? <a href="{{ base_url_relative }}/login">Log in</a> · <a href="{{ base_url_relative }}/members">Browse directory</a></p>
+    <p class="mambers-auth-foot">Already a member? <a href="{{ mambers_login_url|default('/login')|e('html_attr') }}">Log in</a> · <a href="{{ mambers_claim_url|default('/members/me')|e('html_attr') }}">Claim your profile</a></p>
   </div>
 </section>
 {% endblock %}

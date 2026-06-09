@@ -85,7 +85,8 @@ final class MudMambersRouter
     {
         $user = MudMambersSession::user($this->grav);
         if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
-            $login = (string) MudMambersConfig::get($this->grav, 'redirect_anonymous_to', '/login');
+            $this->grav['session']->redirect_after_login = MudMambersProfile::profileMeRoute($this->grav);
+            $login = MudMambersAuth::authUrl($this->grav, MudMambersAuth::loginRoute($this->grav));
             $this->grav->redirect($login, 302);
         }
 
@@ -340,6 +341,8 @@ final class MudMambersRouter
         $vars['mambers_theme_layout'] = MudMambersTheme::resolveLayout($this->grav);
 
         MudMambersTheme::hydrateContext($this->grav, $pageTitle, $metaDescription);
+
+        MudMambersAuth::publishTwigVars($this->grav);
 
         $twig = $this->grav['twig'];
         $twig->twig_vars['page_title'] = $pageTitle;

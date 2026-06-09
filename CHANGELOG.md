@@ -1,5 +1,12 @@
 # Changelog — Mambers
 
+## 0.2.15 — 2026-06-05 (auth route links + claim redirect)
+
+### Fixed
+
+- **Create account on `/members` reloads directory** — empty `href` when Login `getRoute('register')` was null (broken/missing `user_registration.enabled`); Mambers now forces Login register routes and exposes `mambers_register_url` / `mambers_login_url` with `/user_register` fallback
+- **Claim your profile → login with no return** — `/members/me` now sets `session.redirect_after_login` before sending guests to login so post-login lands on profile edit
+
 ## 0.2.14 — 2026-06-05 (auth label strings)
 
 ### Fixed

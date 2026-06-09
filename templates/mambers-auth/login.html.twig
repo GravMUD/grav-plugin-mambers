@@ -57,8 +57,8 @@
       </form>
     {% endif %}
 
-    {% if config.plugins.login.user_registration.enabled %}
-    <p class="mambers-auth-foot">New here? <a href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create an account</a></p>
+    {% if mambers_registration_open|default(config.plugins.login.user_registration.enabled) %}
+    <p class="mambers-auth-foot">New here? <a href="{{ mambers_register_url|default('/user_register')|e('html_attr') }}">Create an account</a></p>
     {% endif %}
   </div>
 </section>

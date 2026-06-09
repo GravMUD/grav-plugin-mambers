@@ -1,72 +1,72 @@
-{% extends 'mambers/theme-page.html.twig' %}
-
-{% block mambers_content %}
-<section class="mambers-directory">
-  <div class="mambers-hero mambers-hero--compact">
-    <div class="mambers-hero-cover mambers-hero-cover--empty mambers-hero-cover--directory">
-      <div class="mambers-hero-gradient" aria-hidden="true"></div>
-      <div class="mambers-hero-identity mambers-hero-identity--compact">
-        <div class="mambers-hero-text">
-          <h1>Members</h1>
-          <p class="mambers-muted">Village directory — opt-in public profiles.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {% if not grav.user.authenticated %}
-  <p class="mambers-guest-cta">
-    <strong>Not a member yet?</strong>
-    {% if config.plugins.login.user_registration.enabled %}
-    <a class="mambers-link" href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create account</a>
-    <span class="mambers-guest-sep" aria-hidden="true">·</span>
-    {% endif %}
-    <a class="mambers-link" href="{{ base_url_relative ~ grav.login.getRoute('login', true) }}">Log in</a>
-    <span class="mambers-guest-sep" aria-hidden="true">·</span>
-    <a class="mambers-link" href="{{ (directory_url ~ '/me')|e('html_attr') }}">Claim your profile</a>
-  </p>
-  {% endif %}
-
-  <div class="mambers-directory-tools">
-    <form class="mambers-search" method="get" action="{{ directory_url|e('html_attr') }}">
-      <input type="search" name="q" value="{{ search|e('html_attr') }}" placeholder="Search members…" aria-label="Search members">
-      <button type="submit" class="mambers-btn">Search</button>
-    </form>
-  </div>
-
-  {% if listing.items is empty %}
-  <p class="mambers-empty">No public member profiles yet{% if grav.user.authenticated %}. Turn on <em>Show in public directory</em> on your profile to appear here.{% else %} — create an account and claim yours.{% endif %}</p>
-  {% else %}
-  <div class="mambers-grid">
-    {% for member in listing.items %}
-    <a class="mambers-card" href="{{ member.profile_url|e('html_attr') }}">
-      <div class="mambers-card-hero">
-        <div class="mambers-card-cover{% if not member.cover %} mambers-card-cover--empty{% endif %}"
-          {% if member.cover %}style="background-image:url('{{ member.cover|e('html_attr') }}')"{% endif %}>
-          <div class="mambers-card-gradient" aria-hidden="true"></div>
-        </div>
-        <img class="mambers-card-avatar" src="{{ member.avatar|e('html_attr') }}" alt="" width="64" height="64" loading="lazy">
-      </div>
-      <div class="mambers-card-body">
-        <h2>{{ member.display_name|e }}</h2>
-        <p class="mambers-muted">@{{ member.username|e }} · {{ member.tier|e }}</p>
-        {% if member.bio_excerpt %}<p class="mambers-card-bio">{{ member.bio_excerpt|e }}</p>{% endif %}
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-
-  {% if listing.pages > 1 %}
-  <nav class="mambers-pagination" aria-label="Pagination">
-    {% if listing.page > 1 %}
-    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page - 1 }}">← Prev</a>
-    {% endif %}
-    <span>Page {{ listing.page }} / {{ listing.pages }}</span>
-    {% if listing.page < listing.pages %}
-    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page + 1 }}">Next →</a>
-    {% endif %}
-  </nav>
-  {% endif %}
-  {% endif %}
-</section>
-{% endblock %}
+{% extends 'mambers/theme-page.html.twig' %}
+
+{% block mambers_content %}
+<section class="mambers-directory">
+  <div class="mambers-hero mambers-hero--compact">
+    <div class="mambers-hero-cover mambers-hero-cover--empty mambers-hero-cover--directory">
+      <div class="mambers-hero-gradient" aria-hidden="true"></div>
+      <div class="mambers-hero-identity mambers-hero-identity--compact">
+        <div class="mambers-hero-text">
+          <h1>Members</h1>
+          <p class="mambers-muted">Village directory — opt-in public profiles.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if not grav.user.authenticated %}
+  <p class="mambers-guest-cta">
+    <strong>Not a member yet?</strong>
+    {% if mambers_registration_open %}
+    <a class="mambers-link" href="{{ mambers_register_url|e('html_attr') }}">Create account</a>
+    <span class="mambers-guest-sep" aria-hidden="true">·</span>
+    {% endif %}
+    <a class="mambers-link" href="{{ mambers_login_url|e('html_attr') }}">Log in</a>
+    <span class="mambers-guest-sep" aria-hidden="true">·</span>
+    <a class="mambers-link" href="{{ mambers_claim_url|e('html_attr') }}">Claim your profile</a>
+  </p>
+  {% endif %}
+
+  <div class="mambers-directory-tools">
+    <form class="mambers-search" method="get" action="{{ directory_url|e('html_attr') }}">
+      <input type="search" name="q" value="{{ search|e('html_attr') }}" placeholder="Search members…" aria-label="Search members">
+      <button type="submit" class="mambers-btn">Search</button>
+    </form>
+  </div>
+
+  {% if listing.items is empty %}
+  <p class="mambers-empty">No public member profiles yet{% if grav.user.authenticated %}. Turn on <em>Show in public directory</em> on your profile to appear here.{% else %} — <a class="mambers-link" href="{{ mambers_register_url|e('html_attr') }}">create an account</a> and claim yours.{% endif %}</p>
+  {% else %}
+  <div class="mambers-grid">
+    {% for member in listing.items %}
+    <a class="mambers-card" href="{{ member.profile_url|e('html_attr') }}">
+      <div class="mambers-card-hero">
+        <div class="mambers-card-cover{% if not member.cover %} mambers-card-cover--empty{% endif %}"
+          {% if member.cover %}style="background-image:url('{{ member.cover|e('html_attr') }}')"{% endif %}>
+          <div class="mambers-card-gradient" aria-hidden="true"></div>
+        </div>
+        <img class="mambers-card-avatar" src="{{ member.avatar|e('html_attr') }}" alt="" width="64" height="64" loading="lazy">
+      </div>
+      <div class="mambers-card-body">
+        <h2>{{ member.display_name|e }}</h2>
+        <p class="mambers-muted">@{{ member.username|e }} · {{ member.tier|e }}</p>
+        {% if member.bio_excerpt %}<p class="mambers-card-bio">{{ member.bio_excerpt|e }}</p>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if listing.pages > 1 %}
+  <nav class="mambers-pagination" aria-label="Pagination">
+    {% if listing.page > 1 %}
+    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page - 1 }}">← Prev</a>
+    {% endif %}
+    <span>Page {{ listing.page }} / {{ listing.pages }}</span>
+    {% if listing.page < listing.pages %}
+    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page + 1 }}">Next →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
