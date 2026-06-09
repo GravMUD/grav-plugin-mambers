@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.10 — 2026-06-05 (auth class import hotfix)
+
+### Fixed
+
+- **`Class "Grav\Plugin\MudMambersAuth" not found`** on `/login` — `use Grav\Plugin\Mambers\MudMambersAuth` in `mambers.php` (plugin class lives in `Grav\Plugin` namespace)
+
 ## 0.2.9 — 2026-06-05 (login route bootstrap)
 
 ### Fixed

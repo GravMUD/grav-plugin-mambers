@@ -12,6 +12,7 @@ use Grav\Framework\Acl\PermissionsReader;
 use Grav\Plugin\Login\Events\PageAuthorizeEvent;
 use Grav\Plugin\Login\Events\UserLoginEvent;
 use Grav\Plugin\Mambers\MudMambersApiBridgeController;
+use Grav\Plugin\Mambers\MudMambersAuth;
 use Grav\Plugin\Mambers\MudMambersConfig;
 use Grav\Plugin\Mambers\MudMambersPermissions;
 use Grav\Plugin\Mambers\MudMambersProfile;
@@ -375,7 +376,6 @@ class MambersPlugin extends Plugin
             return;
         }
 
-        require_once __DIR__ . '/classes/MudMambersAuth.php';
         MudMambersAuth::ensureVirtualAuthPages($this->grav);
     }
 
