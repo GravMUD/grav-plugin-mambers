@@ -1,0 +1,19 @@
+actions:
+  site.member:
+    type: access
+    label: Site Member
+
+  site.member.pro:
+    type: access
+    label: Pro Member
+
+  site.member.moderator:
+    type: access
+    label: Community Moderator
+
+  admin.members:
+    type: access
+    label: Members Admin
+    actions:
+      manage:
+        label: Manage Members

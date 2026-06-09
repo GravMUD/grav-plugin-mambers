@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mambers — Membership on Grav</title>
+  <meta name="description" content="Tiers, gates, one identity. Lite = signup + site.member. Pro = Members panel, Stripe, Shop bridges. MIT · Team DC.">
+  <meta property="og:title" content="Mambers">
+  <meta property="og:description" content="Grav already has users. Mambers gives sites members. >8)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090f;
+      --fg: #f0f4ff;
+      --muted: #94a3b8;
+      --amber: #f59e0b;
+      --violet: #a78bfa;
+      --cyan: #22d3ee;
+      --border: rgba(167, 139, 250, 0.2);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 158, 11, 0.15), transparent 55%),
+        radial-gradient(ellipse 60% 45% at 90% 20%, rgba(167, 139, 250, 0.2), transparent 50%),
+        linear-gradient(180deg, #0c1018, var(--bg));
+      z-index: -1;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    h1 span { color: var(--amber); }
+    .tagline { font-size: 1.15rem; color: var(--muted); max-width: 36rem; }
+    .pill {
+      display: inline-block;
+      margin: 1.25rem 0 2rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(167, 139, 250, 0.08);
+      font-size: 0.85rem;
+      color: var(--cyan);
+    }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      margin: 2rem 0;
+    }
+    .card {
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .card h2 { font-family: 'Sora', sans-serif; font-size: 1rem; margin: 0 0 0.5rem; color: var(--amber); }
+    .card p { margin: 0; font-size: 0.95rem; color: var(--muted); }
+    .card.pro { border-color: rgba(245, 158, 11, 0.35); }
+    .card.pro h2 { color: var(--violet); }
+    h2.section {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      margin: 2.5rem 0 1rem;
+    }
+    .tiers {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 1rem 0 2rem;
+    }
+    .tiers th, .tiers td {
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .tiers th {
+      background: rgba(167, 139, 250, 0.1);
+      color: var(--fg);
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+    }
+    .tiers td:first-child { color: var(--muted); width: 38%; }
+    .tiers .yes { color: var(--cyan); }
+    .tiers .pro-only { color: var(--amber); }
+    .roadmap-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: -0.5rem 0 1.5rem;
+    }
+    pre {
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      background: #0f1419;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    code { color: var(--cyan); }
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    a.btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    a.primary { background: var(--amber); color: #111; }
+    a.secondary { border: 1px solid var(--border); color: var(--fg); }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="pill">MIT Lite · SKU <code>mambers</code> · Grav 2 + Login + Admin2</p>
+    <h1>Mam<span>bers</span></h1>
+    <p class="tagline">Membership on Grav — tiers, gates, one identity across Messenger, Forumz, and Shop. Not a second user database. (Yes, the typo is canon.)</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Lite (MIT)</h2>
+        <p>Signup hook → <code>site.member</code>. Page gating. <code>/whoami</code> API. Admin2 account fields.</p>
+      </div>
+      <div class="card pro">
+        <h2>Pro (commercial · roadmap)</h2>
+        <p>Admin2 <strong>Members</strong> panel · approval queue · Stripe tier webhooks · community plugin bridges · audit log.</p>
+      </div>
+      <div class="card">
+        <h2>Before Shop</h2>
+        <p>Mambers Lite is the release gate for Shop — customer accounts + order→username.</p>
+      </div>
+    </div>
+
+    <h2 class="section">Lite vs Pro</h2>
+    <p class="roadmap-note">v0.1.0 ships <strong>Lite (MIT)</strong>. Pro features below are proposed — config-gated as they land; license keys via The Mud Bazaar.</p>
+    <table class="tiers">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Lite (MIT)</th>
+          <th>Pro (commercial)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Signup</td>
+          <td class="yes">Public Login registration → <code>site.member</code></td>
+          <td class="pro-only">+ invite-only, approval queue, email verify</td>
+        </tr>
+        <tr>
+          <td>Tiers</td>
+          <td class="yes">Single member level (<code>basic</code>)</td>
+          <td class="pro-only"><code>basic</code>, <code>pro</code>, custom groups</td>
+        </tr>
+        <tr>
+          <td>Content gating</td>
+          <td class="yes">Page ACL + <code>member_only_routes</code></td>
+          <td class="pro-only">+ per-fence ACL in alpha compiler (future)</td>
+        </tr>
+        <tr>
+          <td>Admin UI</td>
+          <td class="yes">Admin2 <strong>Users</strong> + member fields</td>
+          <td class="pro-only"><strong>Members</strong> sidebar — overview, pending, tiers, CSV import</td>
+        </tr>
+        <tr>
+          <td>Account fields</td>
+          <td class="yes"><code>member_tier</code>, <code>member_since</code></td>
+          <td class="pro-only">+ <code>member_expires</code>, <code>member_source</code>, <code>member_notes</code></td>
+        </tr>
+        <tr>
+          <td>Messenger bridge</td>
+          <td class="yes">Nick lock → Grav Login (fullname or username)</td>
+          <td class="pro-only">+ mod from <code>site.member.moderator</code></td>
+        </tr>
+        <tr>
+          <td>Forumz bridge</td>
+          <td>—</td>
+          <td class="pro-only">Session bridge → <code>$grav['user']</code>; retire duplicate forum login</td>
+        </tr>
+        <tr>
+          <td>Shop bridge</td>
+          <td>—</td>
+          <td class="pro-only">Orders keyed to <code>username</code> · member-only checkout option</td>
+        </tr>
+        <tr>
+          <td>Billing</td>
+          <td>—</td>
+          <td class="pro-only">Stripe Checkout + webhook → tier + expiry</td>
+        </tr>
+        <tr>
+          <td>Audit log</td>
+          <td>—</td>
+          <td class="pro-only">Flat-file <code>user/data/members/events.jsonl</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 class="section">Install</h2>
+    <pre><code>bin/gpm direct-install https://github.com/GravMUD/grav-plugin-mambers/releases/download/0.1.0/grav-plugin-mambers.zip
+bin/grav cache</code></pre>
+
+    <h2 class="section">Gate a page</h2>
+    <pre><code>access:
+  site.member: true
+login:
+  visibility: private</code></pre>
+
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/GravMUD/grav-plugin-mambers/releases/tag/0.1.0">Download 0.1.0</a>
+      <a class="btn secondary" href="https://github.com/GravMUD/grav-plugin-mambers">GitHub</a>
+      <a class="btn secondary" href="https://github.com/GravMUD/grav-plugin-mambers/discussions">Discussions</a>
+    </div>
+
+    <footer>FutureVision Labs · Team DC · groundswell not fork · nothing sporked</footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+name: Mambers
+slug: mambers
+type: plugin
+version: 0.1.0
+description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
+icon: users
+author:
+  name: FutureVision Labs · Team DC
+  email: chief@gravmud.site
+  url: https://gravmud.site
+homepage: https://mambers.gravmud.site
+bugs: https://github.com/GravMUD/grav-plugin-mambers/discussions
+docs: https://mambers.gravmud.site
+keywords: grav, membership, login, community, mambers, tiers, admin2
+license: MIT
+compatibility:
+  grav: ['2.0']
+dependencies:
+  - { name: grav, version: '>=2.0.0' }
+  - { name: login, version: '>=1.7.0' }
+  - { name: admin2, version: '>=1.0.0' }
+  - { name: api, version: '>=1.0.0' }
+form:
+  validation: loose
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+      fields:
+        general:
+          type: tab
+          title: General
+          fields:
+            enabled:
+              type: toggle
+              label: Plugin Status
+              highlight: 1
+              default: 1
+              validate:
+                type: bool
+            edition:
+              type: select
+              label: Edition
+              default: lite
+              help: Lite = signup hook + site.member gating. Pro unlocks Members panel, Stripe, and plugin bridges.
+              options:
+                lite: Mambers Lite (MIT)
+                pro: Mambers Pro
+            api_route:
+              type: text
+              label: API route prefix
+              default: api/mud-mambers
+            public_registration:
+              type: toggle
+              label: Grant site.member on Login registration
+              highlight: 1
+              default: 1
+              help: When Login user_registration is enabled, new accounts receive the default member tier and permissions.
+              validate:
+                type: bool
+            default_tier:
+              type: select
+              label: Default tier on signup
+              default: basic
+              options:
+                basic: Basic
+                pro: Pro
+            redirect_anonymous_to:
+              type: text
+              label: Redirect hint for anonymous member pages
+              default: /login
+        gating:
+          type: tab
+          title: Gating
+          fields:
+            member_only_routes:
+              type: array
+              label: Member-only route prefixes
+              help: Optional extra routes that require site.member even without page access rules.
+              value_only: true
+        bridges:
+          type: tab
+          title: Bridges
+          fields:
+            section_messenger:
+              type: section
+              title: Messenger (Lite+)
+              text: When Mambers is installed, Messenger auto-detects Login sessions and locks chat nicks to Grav identity. Disable here to force guest nicks.
+            messenger_identity_bridge:
+              type: toggle
+              label: Messenger identity bridge
+              highlight: 1
+              default: 1
+              validate:
+                type: bool
+            section_pro:
+              type: section
+              title: Pro bridges
+              text: Requires edition Pro. Wire Grav Login identity into Forumz and Shop.
+            forumz_identity_bridge:
+              type: toggle
+              label: Forumz identity bridge
+              default: 0
+              validate:
+                type: bool
+            store_identity_bridge:
+              type: toggle
+              label: Shop identity bridge
+              default: 0
+              validate:
+                type: bool

@@ -1,0 +1,20 @@
+enabled: true
+edition: lite
+api_route: api/mud-mambers
+public_registration: true
+default_tier: basic
+redirect_anonymous_to: /login
+tier_permissions:
+  basic:
+    - site.login
+    - site.member
+  pro:
+    - site.login
+    - site.member
+    - site.member.pro
+member_only_routes: []
+messenger_identity_bridge: true
+forumz_identity_bridge: false
+store_identity_bridge: false
+stripe_enabled: false
+require_admin_approval: false
