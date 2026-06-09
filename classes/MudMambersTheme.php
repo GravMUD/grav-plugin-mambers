@@ -47,12 +47,8 @@ final class MudMambersTheme
 
     public static function hydrateContext(Grav $grav, string $title, string $description): void
     {
-        $grav->fireEvent('onTwigSiteVariables');
-
         $twig = $grav['twig'];
         $pages = $grav['pages'];
-        $twig->twig_vars['pages'] = $pages->root();
-
         $page = self::contextPage($grav);
         $page->title($title);
 
@@ -61,9 +57,14 @@ final class MudMambersTheme
         $metadata['description'] = $description;
         $header->metadata = $metadata;
 
+        $twig->twig_vars['pages'] = $pages->root();
         $twig->twig_vars['page'] = $page;
         $twig->twig_vars['header'] = $header;
         $twig->twig_vars['home_url'] = $pages->homeUrl();
+        $twig->twig_vars['user'] = MudMambersSession::user($grav);
+        $twig->twig_vars['uri'] = $grav['uri'];
+
+        $grav->fireEvent('onTwigSiteVariables');
     }
 
     public static function finalizeHtml(Grav $grav, string $html): string

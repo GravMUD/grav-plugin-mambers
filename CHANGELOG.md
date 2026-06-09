@@ -1,5 +1,18 @@
 # Changelog — Mambers
 
+## 0.2.9 — 2026-06-05 (login route bootstrap)
+
+### Fixed
+
+- **`/login` + `/user_register` 404** on slim GetGRAV deploys — Mambers now registers Login virtual pages when Login plugin path bootstrap misses; gravfans package includes physical auth pages + keeps `login`/`form`/`api` in deploy zip
+
+## 0.2.8 — 2026-06-05 (virtual route user hotfix)
+
+### Fixed
+
+- **`/members/me` 500** — `Identifier "user" is not defined` when Login's `$grav['user']` service was not yet available on early virtual-route handling; `MudMambersSession::user()` resolves session/guest safely
+- **Virtual route Twig context** — profile pages set `user` + `uri` before `onTwigSiteVariables`; login partials and logout links work on Mambers shell routes
+
 ## 0.2.7 — 2026-06-05 (GPM review #4119)
 
 ### Security

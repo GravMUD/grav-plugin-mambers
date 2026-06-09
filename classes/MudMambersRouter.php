@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Grav\Plugin\Mambers;
 
 use Grav\Common\Grav;
-use Grav\Common\User\Interfaces\UserInterface;
 
 final class MudMambersRouter
 {
@@ -84,16 +83,16 @@ final class MudMambersRouter
 
     private function redirectMe(): void
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        $user = MudMambersSession::user($this->grav);
         if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $login = (string) MudMambersConfig::get($this->grav, 'redirect_anonymous_to', '/login');
-            header('Location: ' . $login, true, 302);
-            exit;
+            $this->grav->redirect($login, 302);
         }
 
-        header('Location: ' . MudMambersProfile::profilePageUrl($this->grav, MudMambersProfile::usernameOf($user)), true, 302);
-        exit;
+        $this->grav->redirect(
+            MudMambersProfile::profilePageUrl($this->grav, MudMambersProfile::usernameOf($user)),
+            302
+        );
     }
 
     private function renderDirectory(): void
@@ -122,8 +121,7 @@ final class MudMambersRouter
             return;
         }
 
-        /** @var UserInterface $sessionUser */
-        $sessionUser = $this->grav['user'];
+        $sessionUser = MudMambersSession::user($this->grav);
         $canEdit = $sessionUser->exists()
             && MudMambersProfile::usernameOf($sessionUser) === $username
             && $sessionUser->authorize('site.login');
@@ -159,8 +157,7 @@ final class MudMambersRouter
 
     private function handleSave(string $username): void
     {
-        /** @var UserInterface $sessionUser */
-        $sessionUser = $this->grav['user'];
+        $sessionUser = MudMambersSession::user($this->grav);
         if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
@@ -194,8 +191,7 @@ final class MudMambersRouter
 
     private function handleCoverUpload(string $username): void
     {
-        /** @var UserInterface $sessionUser */
-        $sessionUser = $this->grav['user'];
+        $sessionUser = MudMambersSession::user($this->grav);
         if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
@@ -225,8 +221,7 @@ final class MudMambersRouter
 
     private function handleAvatarUpload(string $username): void
     {
-        /** @var UserInterface $sessionUser */
-        $sessionUser = $this->grav['user'];
+        $sessionUser = MudMambersSession::user($this->grav);
         if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';

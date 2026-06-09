@@ -31,7 +31,7 @@ class MambersPlugin extends Plugin
             'onUserLoginAuthorized' => ['onUserLoginAuthorized', 0],
             PageAuthorizeEvent::class => ['onPageAuthorizeEvent', -5000],
             'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000], ['syncLoginIntegration', 0]],
-            'onPagesInitialized' => ['onPagesInitialized', 0],
+            'onPagesInitialized' => [['ensureAuthPages', 10000], ['onPagesInitialized', 0]],
             'onPageNotFound' => ['onPagesInitialized', 0],
             'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
@@ -367,6 +367,16 @@ class MambersPlugin extends Plugin
         $prefixes = (array) ($event['prefixes'] ?? []);
         $prefixes[] = rtrim($apiBase, '/') . '/mud-mambers';
         $event['prefixes'] = $prefixes;
+    }
+
+    public function ensureAuthPages(): void
+    {
+        if (!$this->isEnabled() || $this->isAdmin()) {
+            return;
+        }
+
+        require_once __DIR__ . '/classes/MudMambersAuth.php';
+        MudMambersAuth::ensureVirtualAuthPages($this->grav);
     }
 
     public function onPagesInitialized(): void

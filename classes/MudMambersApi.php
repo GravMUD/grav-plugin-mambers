@@ -264,10 +264,7 @@ class MudMambersApi
             return $this->apiUser;
         }
 
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
-
-        return $user;
+        return MudMambersSession::user($this->grav);
     }
 
     protected function requestHeader(string $name): string
