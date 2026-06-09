@@ -1,0 +1,70 @@
+{% extends 'mambers/layout.html.twig' %}
+
+{% block content %}
+<article class="mambers-profile">
+  {% if profile.cover %}
+  <div class="mambers-profile-cover" style="background-image:url('{{ profile.cover|e('html_attr') }}')"></div>
+  {% else %}
+  <div class="mambers-profile-cover mambers-profile-cover--empty"></div>
+  {% endif %}
+
+  <div class="mambers-profile-head">
+    <img class="mambers-avatar mambers-avatar--lg" src="{{ profile.avatar|e('html_attr') }}" alt="" width="96" height="96">
+    <div>
+      <h1>{{ profile.display_name|e }}</h1>
+      <p class="mambers-muted">@{{ profile.username|e }} · {{ profile.tier|e }}{% if profile.member_since %} · since {{ profile.member_since|e }}{% endif %}</p>
+    </div>
+  </div>
+
+  {% if saved %}
+  <p class="mambers-flash">Profile saved.</p>
+  {% endif %}
+  {% if cover_saved %}
+  <p class="mambers-flash">Cover updated.</p>
+  {% endif %}
+
+  {% if profile.bio %}
+  <div class="mambers-bio">{{ profile.bio|e|nl2br }}</div>
+  {% endif %}
+
+  {% if profile.links %}
+  <ul class="mambers-links">
+    {% for link in profile.links %}
+    <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer">{{ link.title|e }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if profile.can_edit %}
+  <section class="mambers-edit">
+    <h2>Edit profile</h2>
+    <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
+      <label>Bio
+        <textarea name="profile_bio" rows="4" maxlength="500">{{ profile.bio|e }}</textarea>
+      </label>
+      <label class="mambers-check">
+        <input type="checkbox" name="profile_public" value="1"{% if profile.profile_public %} checked{% endif %}>
+        Show in public directory
+      </label>
+
+      <h3>Link in bio <span class="mambers-muted">(max {{ profile.max_links }})</span></h3>
+      {% for i in 0..(profile.max_links - 1) %}
+      {% set link = profile.links[i]|default(null) %}
+      <div class="mambers-link-row">
+        <input type="text" name="link_title[]" placeholder="Title" value="{{ link ? link.title|e('html_attr') : '' }}">
+        <input type="url" name="link_url[]" placeholder="https://…" value="{{ link ? link.url|e('html_attr') : '' }}">
+      </div>
+      {% endfor %}
+
+      <button type="submit">Save profile</button>
+    </form>
+
+    <form class="mambers-cover-form" method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/cover" enctype="multipart/form-data">
+      <h3>Cover image <span class="mambers-muted">(also social share OG image)</span></h3>
+      <input type="file" name="profile_cover" accept="image/jpeg,image/png,image/webp,image/gif" required>
+      <button type="submit">Upload cover</button>
+    </form>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

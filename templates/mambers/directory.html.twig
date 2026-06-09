@@ -1,0 +1,46 @@
+{% extends 'mambers/layout.html.twig' %}
+
+{% block content %}
+<section class="mambers-directory">
+  <div class="mambers-hero">
+    <h1>Members</h1>
+    <p class="mambers-muted">Village directory — opt-in public profiles.</p>
+    <form class="mambers-search" method="get" action="{{ directory_url|e('html_attr') }}">
+      <input type="search" name="q" value="{{ search|e('html_attr') }}" placeholder="Search members…" aria-label="Search members">
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  {% if listing.items is empty %}
+  <p class="mambers-empty">No public member profiles yet. Register, log in, and claim yours at <code>/members/me</code>.</p>
+  {% else %}
+  <div class="mambers-grid">
+    {% for member in listing.items %}
+    <a class="mambers-card" href="{{ member.profile_url|e('html_attr') }}">
+      {% if member.cover %}
+      <div class="mambers-card-cover" style="background-image:url('{{ member.cover|e('html_attr') }}')"></div>
+      {% endif %}
+      <div class="mambers-card-body">
+        <img class="mambers-avatar" src="{{ member.avatar|e('html_attr') }}" alt="" width="56" height="56" loading="lazy">
+        <h2>{{ member.display_name|e }}</h2>
+        <p class="mambers-muted">@{{ member.username|e }} · {{ member.tier|e }}</p>
+        {% if member.bio_excerpt %}<p>{{ member.bio_excerpt|e }}</p>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if listing.pages > 1 %}
+  <nav class="mambers-pagination" aria-label="Pagination">
+    {% if listing.page > 1 %}
+    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page - 1 }}">← Prev</a>
+    {% endif %}
+    <span>Page {{ listing.page }} / {{ listing.pages }}</span>
+    {% if listing.page < listing.pages %}
+    <a href="{{ directory_url|e('html_attr') }}?q={{ search|url_encode }}&page={{ listing.page + 1 }}">Next →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

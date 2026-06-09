@@ -57,6 +57,14 @@
       font-size: 0.85rem;
       color: var(--cyan);
     }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-left: 0.35rem;
+    }
     .grid {
       display: grid;
       gap: 1rem;
@@ -190,6 +198,16 @@
           <td>Account fields</td>
           <td class="yes"><code>member_tier</code>, <code>member_since</code></td>
           <td class="pro-only">+ <code>member_expires</code>, <code>member_source</code>, <code>member_notes</code></td>
+        </tr>
+        <tr>
+          <td>Member profiles + directory</td>
+          <td class="yes">Public profile · opt-in directory · link-in-bio (≤5) <span class="tag">0.2</span></td>
+          <td class="pro-only">+ unlimited links · verified / mod flair</td>
+        </tr>
+        <tr>
+          <td>Profile cover → social OG</td>
+          <td class="yes"><strong>One cover</strong> = banner + <code>og:image</code> when link is shared <span class="tag">0.2</span></td>
+          <td class="pro-only">+ full profile theming (presets, accent, layout)</td>
         </tr>
         <tr>
           <td>Messenger bridge</td>

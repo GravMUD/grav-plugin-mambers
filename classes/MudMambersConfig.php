@@ -80,4 +80,10 @@ class MudMambersConfig
 
         return $map;
     }
+
+    /** @param \Grav\Common\Grav|Config $source */
+    public static function isEnabled($source): bool
+    {
+        return (bool) self::get($source, 'enabled', false);
+    }
 }

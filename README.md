@@ -44,6 +44,13 @@ Legacy config key `plugins.grav-mud-mambers` is still read if `plugins.mambers` 
 
 ---
 
+## Mambers Lite (v0.2)
+
+- Everything in v0.1, plus **member profiles + directory**
+- `/members` · `/members/{username}` · `/members/me`
+- Link-in-bio (≤5 links on Lite) · **cover image = OG share card**
+- `GET /api/v1/mud-mambers/members` · `GET|PATCH /api/v1/mud-mambers/profile`
+
 ## Mambers Lite (v0.1)
 
 - Registers `site.member`, `site.member.pro`, `site.member.moderator` permissions
@@ -52,6 +59,13 @@ Legacy config key `plugins.grav-mud-mambers` is still read if `plugins.mambers` 
 - Shorthand `login.member: true` or `login.visibility: member`
 - Public API `GET /api/v1/mud-mambers/whoami`
 - Admin2 account fields `member_tier`, `member_since` (Pro adds expiry + notes)
+
+### v0.2 roadmap (MBR-2)
+
+- **Member profiles** + opt-in **directory**
+- **Link-in-bio** (≤5 links on Lite)
+- **Profile cover image** — one upload = page banner **and** social **`og:image`** when the profile link is shared
+- Pro adds full profile theming (presets, unlimited links, flair)
 
 ---
 
@@ -62,6 +76,10 @@ Legacy config key `plugins.grav-mud-mambers` is still read if `plugins.mambers` 
 | Signup → `site.member` | ✅ | ✅ |
 | Page / route gating | ✅ | ✅ |
 | Admin2 Users fields | ✅ | ✅ |
+| Member profiles + directory | ✅ (0.2) | ✅ |
+| Link-in-bio | ✅ ≤5 links (0.2) | unlimited |
+| Cover image → OG share card | ✅ one image, two jobs (0.2) | ✅ |
+| Profile theming | default layout only | presets + custom CSS |
 | Members sidebar + pending queue | — | ✅ |
 | Stripe tier webhooks | — | ✅ |
 | Messenger bridge (nick lock) | ✅ | + mod from `site.member.moderator` |
@@ -107,6 +125,13 @@ login:
 | Route | Auth | Purpose |
 |-------|------|---------|
 | `GET /api/v1/mud-mambers/whoami` | session | username, tier, permissions |
+| `GET /api/v1/mud-mambers/members` | public | Directory listing (`?search=&page=&limit=`) |
+| `GET /api/v1/mud-mambers/profile/{username}` | public | Public profile JSON |
+| `GET /api/v1/mud-mambers/profile` | session | Own profile |
+| `PATCH /api/v1/mud-mambers/profile` | session | Update bio, links, visibility |
+| `POST /api/v1/mud-mambers/profile/cover` | session | Upload cover image |
+
+**Front-end:** `/members` · `/members/{username}` · `/members/me`
 
 Legacy fallback: `GET /api/mud-mambers/whoami` when API bridge is disabled.
 

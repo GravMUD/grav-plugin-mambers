@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title|default('Members') }} · {{ site_title|e }}</title>
+  <meta name="description" content="{{ meta_description|default('Member profiles on Grav')|e('html_attr') }}">
+  {% if og_image %}
+  <meta property="og:image" content="{{ og_image|e('html_attr') }}">
+  <meta property="og:title" content="{{ og_title|default(page_title)|e('html_attr') }}">
+  <meta property="og:description" content="{{ meta_description|default('')|e('html_attr') }}">
+  <meta name="twitter:card" content="summary_large_image">
+  {% endif %}
+  <link rel="stylesheet" href="{{ css_url|e('html_attr') }}">
+</head>
+<body class="mambers-body">
+  <header class="mambers-header">
+    <a class="mambers-brand" href="{{ base_url|e('html_attr') }}/">← {{ site_title|e }}</a>
+    <a class="mambers-nav-link" href="{{ directory_url|default(base_url ~ '/members')|e('html_attr') }}">Members</a>
+  </header>
+  <main class="mambers-main">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="mambers-footer">
+    <span>Mambers · one identity</span>
+    {% if linkz_cta_url %}
+    <a href="{{ linkz_cta_url|e('html_attr') }}" rel="noopener">Link in bio on Linkz.live →</a>
+    {% endif %}
+  </footer>
+</body>
+</html>

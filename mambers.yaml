@@ -13,6 +13,10 @@ tier_permissions:
     - site.member
     - site.member.pro
 member_only_routes: []
+profiles_enabled: true
+profile_route_prefix: members
+lite_link_limit: 5
+linkz_cta_url: https://linkz.live/getgrav
 messenger_identity_bridge: true
 forumz_identity_bridge: false
 store_identity_bridge: false

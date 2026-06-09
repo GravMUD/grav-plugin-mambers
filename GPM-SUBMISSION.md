@@ -1,6 +1,6 @@
 # GPM submission — Mambers
 
-**Status:** Ready to file  
+**Filed:** https://github.com/getgrav/grav/issues/4119  
 **Plugin:** `mambers` v0.1.0  
 **Repo:** https://github.com/GravMUD/grav-plugin-mambers
 

@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.1.0
+version: 0.2.0
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:
@@ -69,6 +69,33 @@ form:
               type: text
               label: Redirect hint for anonymous member pages
               default: /login
+        profiles:
+          type: tab
+          title: Profiles (Lite)
+          fields:
+            profiles_enabled:
+              type: toggle
+              label: Member profiles + directory
+              highlight: 1
+              default: 1
+              validate:
+                type: bool
+            profile_route_prefix:
+              type: text
+              label: Profile URL prefix
+              default: members
+              help: Public routes at /members and /members/{username}. Cover image doubles as og:image.
+            lite_link_limit:
+              type: number
+              label: Link-in-bio limit (Lite)
+              default: 5
+              validate:
+                min: 1
+                max: 20
+            linkz_cta_url:
+              type: text
+              label: Linkz.live upsell URL
+              default: https://linkz.live/getgrav
         gating:
           type: tab
           title: Gating

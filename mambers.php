@@ -2,6 +2,9 @@
 
 namespace Grav\Plugin;
 
+require_once __DIR__ . '/classes/MudMambersConfig.php';
+
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Plugin;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Events\PermissionsRegisterEvent;
@@ -25,7 +28,8 @@ class MambersPlugin extends Plugin
             PageAuthorizeEvent::class => ['onPageAuthorizeEvent', -5000],
             'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000]],
             'onPagesInitialized' => ['onPagesInitialized', 0],
-            'onPageNotFound' => ['onPagesInitialized', 0],
+            'onPageNotFound' => ['onPageNotFound', 0],
+            'onTwigInitialized' => ['onTwigInitialized', 0],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
 
@@ -35,6 +39,15 @@ class MambersPlugin extends Plugin
         }
 
         return $events;
+    }
+
+    public function autoload(): ClassLoader
+    {
+        $loader = new ClassLoader();
+        $loader->addPsr4('Grav\\Plugin\\Mambers\\', __DIR__ . '/classes');
+        $loader->register(true);
+
+        return $loader;
     }
 
     /** @return array<string, mixed> */
@@ -51,11 +64,19 @@ class MambersPlugin extends Plugin
 
     public function onPluginsInitializedEarly(): void
     {
-        if (!$this->isEnabled() || !self::supportsGravApiBridge()) {
+        if (!$this->isEnabled()) {
             return;
         }
 
-        require_once __DIR__ . '/classes/MudMambersConfig.php';
+        require_once __DIR__ . '/classes/MudMambersRouter.php';
+        if ((new MudMambersRouter($this->grav))->maybeHandle()) {
+            exit;
+        }
+
+        if (!self::supportsGravApiBridge()) {
+            return;
+        }
+
         require_once __DIR__ . '/classes/MudMambersApiBridgeController.php';
         require_once __DIR__ . '/classes/MudMambersApi.php';
     }
@@ -95,6 +116,9 @@ class MambersPlugin extends Plugin
         }
         if (!$user->get('member_since')) {
             $user->set('member_since', gmdate('Y-m-d H:i:s'));
+        }
+        if ($user->get('profile_public') === null || $user->get('profile_public') === '') {
+            $user->set('profile_public', true);
         }
         $user->save();
     }
@@ -177,9 +201,35 @@ class MambersPlugin extends Plugin
 
         $fields = $this->insertFieldAfter($fields, 'email', $memberTierField);
         $fields = $this->insertFieldAfter($fields, 'member_tier', $memberSinceField);
+        $fields = $this->insertFieldAfter($fields, 'member_since', [
+            'name' => 'profile_public',
+            'type' => 'toggle',
+            'label' => 'Public profile',
+            'default' => 1,
+        ]);
+        $fields = $this->insertFieldAfter($fields, 'profile_public', [
+            'name' => 'profile_bio',
+            'type' => 'textarea',
+            'label' => 'Profile bio',
+        ]);
+        $fields = $this->insertFieldAfter($fields, 'profile_bio', [
+            'name' => 'profile_cover',
+            'type' => 'text',
+            'label' => 'Profile cover path',
+            'help' => 'Relative path or URL. Cover also drives og:image on profile pages.',
+        ]);
+        $fields = $this->insertFieldAfter($fields, 'profile_cover', [
+            'name' => 'profile_links',
+            'type' => 'list',
+            'label' => 'Link in bio',
+            'fields' => [
+                ['name' => 'title', 'type' => 'text', 'label' => 'Title'],
+                ['name' => 'url', 'type' => 'text', 'label' => 'URL'],
+            ],
+        ]);
 
         if (MudMambersConfig::isPro($this->grav)) {
-            $fields = $this->insertFieldAfter($fields, 'member_since', [
+            $fields = $this->insertFieldAfter($fields, 'profile_links', [
                 'name' => 'member_expires',
                 'type' => 'datetime',
                 'label' => 'Member expires',
@@ -209,8 +259,31 @@ class MambersPlugin extends Plugin
 
         $routes = $event['routes'];
         $controller = [MudMambersApiBridgeController::class, 'handle'];
-        $routes->addRoute(['GET', 'OPTIONS'], '/mud-mambers', $controller);
-        $routes->addRoute(['GET', 'OPTIONS'], '/mud-mambers/{subpath:.+}', $controller);
+        $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers', $controller);
+        $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers/{subpath:.+}', $controller);
+    }
+
+    public function onTwigInitialized(): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $path = __DIR__ . '/templates';
+        if (is_dir($path)) {
+            $this->grav['twig']->twig_paths[] = $path;
+        }
+    }
+
+    public function onPageNotFound(): void
+    {
+        if (!$this->isEnabled() || $this->isAdmin()) {
+            return;
+        }
+
+        if ($this->handleProfiles()) {
+            exit;
+        }
     }
 
     public function onApiCollectPublicRoutes(Event $event): void
@@ -229,6 +302,10 @@ class MambersPlugin extends Plugin
     {
         if (!$this->isEnabled() || $this->isAdmin()) {
             return;
+        }
+
+        if ($this->handleProfiles()) {
+            exit;
         }
 
         $action = $this->apiAction();
@@ -313,5 +390,17 @@ class MambersPlugin extends Plugin
     private static function supportsGravApiBridge(): bool
     {
         return class_exists(\Grav\Plugin\Api\ApiRouteCollector::class);
+    }
+
+    private function isEnabled(): bool
+    {
+        return MudMambersConfig::isEnabled($this->grav);
+    }
+
+    private function handleProfiles(): bool
+    {
+        require_once __DIR__ . '/classes/MudMambersRouter.php';
+
+        return (new MudMambersRouter($this->grav))->maybeHandle();
     }
 }
