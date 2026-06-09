@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.12 — 2026-06-05 (login form twig paths)
+
+### Fixed
+
+- **`Template "partials/login-form.html.twig" is not defined`** on Mambers auth skin — prepend Login + Form plugin template paths before rendering `mambers-auth/login.html.twig`
+
 ## 0.2.11 — 2026-06-05 (login form bootstrap)
 
 ### Fixed
