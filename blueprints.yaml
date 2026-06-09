@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.2.15
+version: 0.2.16
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:

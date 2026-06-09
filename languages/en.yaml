@@ -7,3 +7,8 @@ PLUGIN_MAMBERS:
   AUTH_LOGOUT: "Log out"
   AUTH_CANCEL: "Cancel"
   AUTH_WELCOME: "Welcome back,"
+  AUTH_REGISTER: "Create account"
+  AUTH_FULLNAME: "Full name"
+  AUTH_USERNAME_FIELD: "Username"
+  AUTH_EMAIL: "Email"
+  AUTH_PASSWORD_AGAIN: "Confirm password"

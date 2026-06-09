@@ -2,11 +2,42 @@
 
 {% block mambers_auth_content %}
 <section class="mambers-auth">
-  <div class="mambers-auth-card">
+  <div class="mambers-auth-card mambers-auth-card--register">
+    {% include 'partials/messages.html.twig' %}
     <span class="mambers-auth-badge">Mambers Lite</span>
     <h1>Join the village</h1>
     <p class="mambers-auth-lead">One account for member profiles, Messenger nick lock, and gated pages. No Meetup tax. No BuddyPress bloat.</p>
-    {% include 'forms/form.html.twig' %}
+
+    <form method="post" action="{{ (base_url_relative ~ uri.path)|e }}" class="mambers-register-form mambers-login-form">
+      {% if form is defined and form %}
+      <input type="hidden" name="data[formname]" value="{{ form.name|e('html_attr') }}">
+      <input type="hidden" name="data[formtask]" value="submit">
+      <input type="hidden" name="data[uniqueid]" value="{{ form.uniqueid|e('html_attr') }}">
+      <input type="hidden" name="data[nonce]" value="{{ form.getNonce()|e('html_attr') }}">
+      {% endif %}
+      <div class="form-field">
+        <label for="fullname">{{ 'PLUGIN_MAMBERS.AUTH_FULLNAME'|t }}</label>
+        <input type="text" name="data[fullname]" id="fullname" required autocomplete="name">
+      </div>
+      <div class="form-field">
+        <label for="username">{{ 'PLUGIN_MAMBERS.AUTH_USERNAME_FIELD'|t }}</label>
+        <input type="text" name="data[username]" id="username" required autocomplete="username">
+      </div>
+      <div class="form-field">
+        <label for="email">{{ 'PLUGIN_MAMBERS.AUTH_EMAIL'|t }}</label>
+        <input type="email" name="data[email]" id="email" required autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label for="password1">{{ 'PLUGIN_MAMBERS.AUTH_PASSWORD'|t }}</label>
+        <input type="password" name="data[password1]" id="password1" required autocomplete="new-password">
+      </div>
+      <div class="form-field">
+        <label for="password2">{{ 'PLUGIN_MAMBERS.AUTH_PASSWORD_AGAIN'|t }}</label>
+        <input type="password" name="data[password2]" id="password2" required autocomplete="new-password">
+      </div>
+      <button type="submit" class="mambers-auth-btn">{{ 'PLUGIN_MAMBERS.AUTH_REGISTER'|t }}</button>
+    </form>
+
     <p class="mambers-auth-foot">Already a member? <a href="{{ mambers_login_url|default('/login')|e('html_attr') }}">Log in</a> · <a href="{{ mambers_claim_url|default('/members/me')|e('html_attr') }}">Claim your profile</a></p>
   </div>
 </section>

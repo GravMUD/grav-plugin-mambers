@@ -202,6 +202,8 @@ final class MudMambersAuth
             return null;
         }
 
+        self::prependAuthTwigLoaderPaths($grav);
+
         $skins = [
             'register' => 'mambers-auth/register.html.twig',
             'login' => 'mambers-auth/login.html.twig',

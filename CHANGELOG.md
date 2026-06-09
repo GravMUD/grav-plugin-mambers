@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.16 — 2026-06-05 (inline register form)
+
+### Fixed
+
+- **`/user_register` 400 — `forms/form.html.twig` not defined** — register auth skin now uses inline form (same pattern as login); Form plugin hidden fields + Mambers label strings
+
 ## 0.2.15 — 2026-06-05 (auth route links + claim redirect)
 
 ### Fixed
