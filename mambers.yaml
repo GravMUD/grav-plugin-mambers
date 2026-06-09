@@ -7,6 +7,7 @@ redirect_anonymous_to: /login
 redirect_after_login: /members/me
 redirect_after_registration: /login
 login_after_registration: false
+sync_login_redirects: false
 tier_permissions:
   basic:
     - site.login
@@ -21,7 +22,7 @@ auth_skin: true
 profiles_theme_shell: true
 profile_route_prefix: members
 lite_link_limit: 5
-linkz_cta_url: https://linkz.live/getgrav
+linkz_cta_url: ''
 messenger_identity_bridge: true
 forumz_identity_bridge: false
 store_identity_bridge: false

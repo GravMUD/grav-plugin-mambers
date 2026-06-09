@@ -39,10 +39,8 @@ class MambersPlugin extends Plugin
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
 
-        if (self::supportsGravApiBridge()) {
-            $events['onApiRegisterRoutes'] = ['onApiRegisterRoutes', 0];
-            $events['onApiCollectPublicRoutes'] = ['onApiCollectPublicRoutes', 0];
-        }
+        $events['onApiRegisterRoutes'] = ['onApiRegisterRoutes', 0];
+        $events['onApiCollectPublicRoutes'] = ['onApiCollectPublicRoutes', 0];
 
         return $events;
     }
@@ -85,6 +83,10 @@ class MambersPlugin extends Plugin
     public function syncLoginIntegration(): void
     {
         if (!$this->isEnabled()) {
+            return;
+        }
+
+        if (!(bool) MudMambersConfig::get($this->grav, 'sync_login_redirects', false)) {
             return;
         }
 
@@ -259,12 +261,6 @@ class MambersPlugin extends Plugin
             'label' => 'Profile bio',
         ]);
         $fields = $this->insertFieldAfter($fields, 'profile_bio', [
-            'name' => 'profile_cover',
-            'type' => 'text',
-            'label' => 'Profile cover path',
-            'help' => 'Relative path or URL. Cover also drives og:image on profile pages.',
-        ]);
-        $fields = $this->insertFieldAfter($fields, 'profile_cover', [
             'name' => 'profile_links',
             'type' => 'list',
             'label' => 'Link in bio',
@@ -382,19 +378,6 @@ class MambersPlugin extends Plugin
         if ($this->handleProfiles()) {
             exit;
         }
-
-        $action = $this->apiAction();
-        if ($action === null) {
-            return;
-        }
-
-        if (class_exists(\Grav\Plugin\Api\ApiRouteCollector::class)) {
-            return;
-        }
-
-        require_once __DIR__ . '/classes/MudMambersApi.php';
-        (new \Grav\Plugin\Mambers\MudMambersApi($this->grav))->handle($action);
-        exit;
     }
 
     protected function publicRegistrationEnabled(): bool
@@ -421,23 +404,6 @@ class MambersPlugin extends Plugin
         }
 
         return false;
-    }
-
-    protected function apiAction(): ?string
-    {
-        $cfg = self::pluginConfig($this->grav);
-        $route = trim((string) ($cfg['api_route'] ?? 'api/mud-mambers'), '/');
-        $path = trim((string) $this->grav['uri']->path(), '/');
-
-        if ($path === $route) {
-            return '';
-        }
-
-        if (!str_starts_with($path, $route . '/')) {
-            return null;
-        }
-
-        return trim(substr($path, strlen($route)), '/');
     }
 
     /** @param list<array<string, mixed>> $fields */

@@ -7,7 +7,7 @@ namespace Grav\Plugin\Mambers;
 use Grav\Common\Config\Config;
 
 /**
- * Config accessor — plugins.mambers with legacy grav-mud-mambers fallback.
+ * Config accessor — plugins.mambers.
  */
 class MudMambersConfig
 {
@@ -19,24 +19,14 @@ class MudMambersConfig
         }
 
         if ($source instanceof Config) {
-            $cfg = (array) $source->get('plugins.mambers', []);
-            if ($cfg !== []) {
-                return $cfg;
-            }
-
-            return (array) $source->get('plugins.grav-mud-mambers', []);
+            return (array) $source->get('plugins.mambers', []);
         }
 
         if (!isset($source['config'])) {
             return [];
         }
 
-        $cfg = (array) $source['config']->get('plugins.mambers', []);
-        if ($cfg !== []) {
-            return $cfg;
-        }
-
-        return (array) $source['config']->get('plugins.grav-mud-mambers', []);
+        return (array) $source['config']->get('plugins.mambers', []);
     }
 
     /** @param \Grav\Common\Grav|Config $source */

@@ -138,7 +138,7 @@ final class MudMambersRouter
         $cover = $profile['cover'] ?? null;
         $bioExcerpt = (string) ($profile['bio_excerpt'] ?? '');
 
-        $this->renderTwig('profile.html.twig', [
+        $vars = [
             'page_title' => $profile['display_name'] . ' · Members',
             'meta_description' => $bioExcerpt !== '' ? $bioExcerpt : ('Member profile for ' . $profile['display_name']),
             'profile' => $profile,
@@ -148,7 +148,13 @@ final class MudMambersRouter
             'cover_saved' => !empty($_GET['cover']),
             'avatar_saved' => !empty($_GET['avatar']),
             'directory_url' => rtrim((string) $this->grav['base_url'], '/') . '/' . trim((string) MudMambersConfig::get($this->grav, 'profile_route_prefix', 'members'), '/'),
-        ]);
+        ];
+        if ($canEdit) {
+            require_once __DIR__ . '/MudMambersCsrf.php';
+            $vars['profile_write_nonce'] = MudMambersCsrf::token($this->grav);
+        }
+
+        $this->renderTwig('profile.html.twig', $vars);
     }
 
     private function handleSave(string $username): void
@@ -158,6 +164,15 @@ final class MudMambersRouter
         if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
+            exit;
+        }
+
+        require_once __DIR__ . '/MudMambersCsrf.php';
+        try {
+            MudMambersCsrf::assertValid($this->grav, (string) ($_POST['nonce'] ?? ''));
+        } catch (\Throwable $e) {
+            http_response_code(403);
+            echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             exit;
         }
 
@@ -187,6 +202,15 @@ final class MudMambersRouter
             exit;
         }
 
+        require_once __DIR__ . '/MudMambersCsrf.php';
+        try {
+            MudMambersCsrf::assertValid($this->grav, (string) ($_POST['nonce'] ?? ''));
+        } catch (\Throwable $e) {
+            http_response_code(403);
+            echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+            exit;
+        }
+
         try {
             MudMambersProfile::storeCoverUpload($this->grav, $sessionUser, $_FILES['profile_cover'] ?? []);
         } catch (\Throwable $e) {
@@ -206,6 +230,15 @@ final class MudMambersRouter
         if (!$sessionUser->exists() || MudMambersProfile::usernameOf($sessionUser) !== $username) {
             http_response_code(403);
             echo 'Forbidden';
+            exit;
+        }
+
+        require_once __DIR__ . '/MudMambersCsrf.php';
+        try {
+            MudMambersCsrf::assertValid($this->grav, (string) ($_POST['nonce'] ?? ''));
+        } catch (\Throwable $e) {
+            http_response_code(403);
+            echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             exit;
         }
 
@@ -266,7 +299,12 @@ final class MudMambersRouter
             'gif' => 'image/gif',
         ];
 
-        header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
+        if (!isset($mimes[$ext])) {
+            http_response_code(404);
+            exit;
+        }
+
+        header('Content-Type: ' . $mimes[$ext]);
         header('Cache-Control: public, max-age=86400');
         readfile($file);
         exit;
@@ -299,7 +337,7 @@ final class MudMambersRouter
         $vars['site_title'] = $siteTitle;
         $vars['base_url'] = rtrim((string) $this->grav['base_url'], '/');
         $vars['css_url'] = $vars['base_url'] . '/user/plugins/mambers/assets/mambers-profiles.css';
-        $vars['linkz_cta_url'] = (string) MudMambersConfig::get($this->grav, 'linkz_cta_url', 'https://linkz.live/getgrav');
+        $vars['linkz_cta_url'] = (string) MudMambersConfig::get($this->grav, 'linkz_cta_url', '');
         $vars['header'] = [
             'title' => $pageTitle,
             'metadata' => ['description' => $metaDescription],

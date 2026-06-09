@@ -63,6 +63,7 @@
     <section class="mambers-edit">
       <h2>Edit profile</h2>
       <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
+        <input type="hidden" name="nonce" value="{{ profile_write_nonce|e('html_attr') }}">
         <label>Bio
           <textarea name="profile_bio" rows="4" maxlength="500">{{ profile.bio|e }}</textarea>
         </label>
@@ -90,6 +91,7 @@
         <h2 id="mambers-modal-cover-title">Update cover photo</h2>
         <p class="mambers-muted">Also used as your social share image (og:image).</p>
         <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/cover" enctype="multipart/form-data">
+          <input type="hidden" name="nonce" value="{{ profile_write_nonce|e('html_attr') }}">
           <label class="mambers-file-label">
             <span>Choose image</span>
             <input type="file" name="profile_cover" accept="image/jpeg,image/png,image/webp,image/gif" required>
@@ -107,6 +109,7 @@
       <div class="mambers-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mambers-modal-avatar-title">
         <h2 id="mambers-modal-avatar-title">Update profile photo</h2>
         <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/avatar" enctype="multipart/form-data">
+          <input type="hidden" name="nonce" value="{{ profile_write_nonce|e('html_attr') }}">
           <label class="mambers-file-label">
             <span>Choose image</span>
             <input type="file" name="profile_avatar" accept="image/jpeg,image/png,image/webp,image/gif" required>

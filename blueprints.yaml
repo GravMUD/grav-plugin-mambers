@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.2.6
+version: 0.2.7
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:
@@ -85,6 +85,13 @@ form:
               help: Off = register then sign in at /login (recommended).
               validate:
                 type: bool
+            sync_login_redirects:
+              type: toggle
+              label: Sync Login plugin redirect settings
+              default: 0
+              help: When enabled, Mambers writes redirect_after_login and redirect_after_registration into the Login plugin config each request. Leave off unless this site owns Login redirects.
+              validate:
+                type: bool
         profiles:
           type: tab
           title: Profiles (Lite)
@@ -127,7 +134,8 @@ form:
             linkz_cta_url:
               type: text
               label: Linkz.live upsell URL
-              default: https://linkz.live/getgrav
+              default: ''
+              help: Optional footer CTA on profile pages. Leave empty to hide.
         gating:
           type: tab
           title: Gating

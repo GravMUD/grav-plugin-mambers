@@ -14,7 +14,14 @@ class MudMambersApi
     /** @var array<string, mixed>|null */
     protected ?array $jsonBody = null;
 
+    private ?UserInterface $apiUser = null;
+
     public function __construct(protected readonly Grav $grav) {}
+
+    public function setApiUser(?UserInterface $user): void
+    {
+        $this->apiUser = $user;
+    }
 
     public function getBridgeHttpCode(): int
     {
@@ -93,8 +100,7 @@ class MudMambersApi
 
     protected function whoami(): void
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        $user = $this->sessionUser();
         $this->respond(MudMambersPermissions::whoamiPayload($user));
     }
 
@@ -109,17 +115,18 @@ class MudMambersApi
 
     protected function ownProfile(): void
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        $user = $this->sessionUser();
         if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
 
             return;
         }
 
+        require_once __DIR__ . '/MudMambersCsrf.php';
         $this->respond([
             'ok' => true,
             'profile' => MudMambersProfile::publicPayload($this->grav, $user, true),
+            'write_nonce' => MudMambersCsrf::token($this->grav),
         ]);
     }
 
@@ -132,8 +139,7 @@ class MudMambersApi
             return;
         }
 
-        /** @var UserInterface $sessionUser */
-        $sessionUser = $this->grav['user'];
+        $sessionUser = $this->sessionUser();
         $canEdit = $sessionUser->exists()
             && MudMambersProfile::usernameOf($sessionUser) === $username
             && $sessionUser->authorize('site.login');
@@ -152,8 +158,7 @@ class MudMambersApi
 
     protected function patchOwnProfile(): void
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        $user = $this->sessionUser();
         if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
 
@@ -161,6 +166,18 @@ class MudMambersApi
         }
 
         $body = $this->readJsonBody();
+        require_once __DIR__ . '/MudMambersCsrf.php';
+        try {
+            MudMambersCsrf::assertValid(
+                $this->grav,
+                (string) ($body['nonce'] ?? $this->requestHeader('X-Members-Nonce'))
+            );
+        } catch (\Throwable $e) {
+            $this->respond(['ok' => false, 'error' => $e->getMessage()], 403);
+
+            return;
+        }
+
         try {
             $profile = MudMambersProfile::updateOwn($this->grav, $user, $body);
         } catch (\Throwable $e) {
@@ -174,10 +191,21 @@ class MudMambersApi
 
     protected function uploadCover(): void
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        $user = $this->sessionUser();
         if (!$user->exists() || !MudMambersProfile::usernameOf($user)) {
             $this->respond(['ok' => false, 'error' => 'login_required'], 401);
+
+            return;
+        }
+
+        require_once __DIR__ . '/MudMambersCsrf.php';
+        try {
+            MudMambersCsrf::assertValid(
+                $this->grav,
+                (string) ($_POST['nonce'] ?? $this->requestHeader('X-Members-Nonce'))
+            );
+        } catch (\Throwable $e) {
+            $this->respond(['ok' => false, 'error' => $e->getMessage()], 403);
 
             return;
         }
@@ -228,5 +256,24 @@ class MudMambersApi
         $this->httpCode = $code;
         http_response_code($code);
         echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    protected function sessionUser(): UserInterface
+    {
+        if ($this->apiUser !== null) {
+            return $this->apiUser;
+        }
+
+        /** @var UserInterface $user */
+        $user = $this->grav['user'];
+
+        return $user;
+    }
+
+    protected function requestHeader(string $name): string
+    {
+        $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+
+        return trim((string) ($_SERVER[$key] ?? ''));
     }
 }

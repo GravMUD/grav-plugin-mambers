@@ -1,5 +1,25 @@
 # Changelog — Mambers
 
+## 0.2.7 — 2026-06-05 (GPM review #4119)
+
+### Security
+
+- **Path traversal** — cover/avatar serve routes only read files from the member media directory; removed free-text `profile_cover` Admin2 field (upload-only)
+- **CSRF** — profile save, cover upload, and avatar upload require Grav nonce on router forms and API writes (`nonce` POST field or `X-Members-Nonce` header)
+- **MIME hardening** — unknown image extensions on cover/avatar routes return 404 instead of `application/octet-stream`
+
+### Fixed
+
+- **API bridge identity** — `/api/v1/mud-mambers` resolves session/JWT/API-key user via `SessionAuthenticator` and `setApiUser()` (same pattern as Messenger)
+- **Login config rewrite** — Mambers no longer overwrites global Login redirect settings every request unless `sync_login_redirects: true`
+- **Directory performance** — 60s TTL cache for member listing; busted on profile save/upload
+
+### Changed
+
+- Dropped legacy `grav-mud-mambers` config slug fallback
+- Neutral GPM defaults — empty `linkz_cta_url`; site config can set campaign CTA
+- Removed legacy non-API route fallback (`api/mud-mambers` direct hit); Grav API plugin required
+
 ## 0.2.6 — 2026-06-09 (virtual route output shell)
 
 ### Fixed

@@ -161,53 +161,12 @@ final class MudMambersProfile
 
     public static function avatarFilePath(Grav $grav, string $username): ?string
     {
-        $user = MudMambersAccounts::load($grav, $username);
-        if ($user === null) {
-            return null;
-        }
-
-        $stored = trim((string) $user->get('profile_avatar'));
-        if ($stored === '' || str_starts_with($stored, 'http://') || str_starts_with($stored, 'https://')) {
-            return null;
-        }
-
-        $path = $stored;
-        if (!str_starts_with($path, 'user/')) {
-            $path = 'user/data/mambers/avatars/' . basename($path);
-        }
-
-        $file = GRAV_ROOT . '/' . ltrim($path, '/');
-        if (!is_file($file)) {
-            return null;
-        }
-
-        return $file;
+        return self::confinedMediaFile($grav, $username, 'avatars');
     }
 
     public static function coverFilePath(Grav $grav, string $username): ?string
     {
-        $user = MudMambersAccounts::load($grav, $username);
-        if ($user === null) {
-            return null;
-        }
-
-        $cover = trim((string) $user->get('profile_cover'));
-        if ($cover === '') {
-            return null;
-        }
-
-        if (str_starts_with($cover, 'http://') || str_starts_with($cover, 'https://')) {
-            return null;
-        }
-
-        $path = $cover;
-        if (!str_starts_with($path, '/')) {
-            $path = GRAV_ROOT . '/' . ltrim($path, '/');
-        } else {
-            $path = GRAV_ROOT . $path;
-        }
-
-        return is_file($path) ? $path : null;
+        return self::confinedMediaFile($grav, $username, 'covers');
     }
 
     /** @param array<string, mixed> $patch
@@ -232,6 +191,8 @@ final class MudMambersProfile
         }
 
         $user->save();
+        require_once __DIR__ . '/MudMambersDirectoryCache.php';
+        MudMambersDirectoryCache::bust($grav);
 
         return self::publicPayload($grav, $user, true);
     }
@@ -241,6 +202,8 @@ final class MudMambersProfile
         $relative = self::storeImageUpload($user, $file, self::coversDir($grav));
         $user->set('profile_cover', $relative);
         $user->save();
+        require_once __DIR__ . '/MudMambersDirectoryCache.php';
+        MudMambersDirectoryCache::bust($grav);
 
         return $relative;
     }
@@ -250,6 +213,8 @@ final class MudMambersProfile
         $relative = self::storeImageUpload($user, $file, self::avatarsDir($grav));
         $user->set('profile_avatar', $relative);
         $user->save();
+        require_once __DIR__ . '/MudMambersDirectoryCache.php';
+        MudMambersDirectoryCache::bust($grav);
 
         return $relative;
     }
@@ -366,5 +331,53 @@ final class MudMambersProfile
         $folder = basename($dir);
 
         return 'user/data/mambers/' . $folder . '/' . $filename;
+    }
+
+    private static function confinedMediaFile(Grav $grav, string $username, string $subdir): ?string
+    {
+        $user = MudMambersAccounts::load($grav, $username);
+        if ($user === null) {
+            return null;
+        }
+
+        $field = $subdir === 'covers' ? 'profile_cover' : 'profile_avatar';
+        $stored = trim((string) $user->get($field));
+        if ($stored === '' || str_starts_with($stored, 'http://') || str_starts_with($stored, 'https://')) {
+            return null;
+        }
+
+        $dir = realpath(self::mediaDir($grav, $subdir));
+        if ($dir === false) {
+            return null;
+        }
+
+        $basename = basename($stored);
+        if ($basename === '' || str_contains($basename, "\0")) {
+            return null;
+        }
+
+        if (strcasecmp(pathinfo($basename, PATHINFO_FILENAME), $username) !== 0) {
+            return null;
+        }
+
+        $candidate = $dir . DIRECTORY_SEPARATOR . $basename;
+        $resolved = realpath($candidate);
+        if ($resolved === false || !is_file($resolved)) {
+            return null;
+        }
+
+        $prefix = $dir . DIRECTORY_SEPARATOR;
+        if (!str_starts_with($resolved, $prefix)) {
+            return null;
+        }
+
+        return self::isAllowedImageExt($resolved) ? $resolved : null;
+    }
+
+    private static function isAllowedImageExt(string $file): bool
+    {
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+
+        return in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
     }
 }

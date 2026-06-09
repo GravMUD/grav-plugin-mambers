@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Grav\Plugin\Mambers;
 
 use Grav\Common\Grav;
-use Grav\Common\User\Interfaces\UserInterface;
 
 final class MudMambersDirectory
 {
@@ -16,23 +15,24 @@ final class MudMambersDirectory
         $page = max(1, $page);
         $perPage = max(1, min(100, $perPage));
 
-        $items = [];
-        foreach (MudMambersAccounts::memberAccounts($grav) as $user) {
-            if (!MudMambersProfile::isPublic($user)) {
-                continue;
-            }
-
-            if ($search !== '') {
+        require_once __DIR__ . '/MudMambersDirectoryCache.php';
+        $items = MudMambersDirectoryCache::cards($grav);
+        if ($search !== '') {
+            $items = array_values(array_filter($items, static function (array $card) use ($search): bool {
                 $hay = strtolower(
-                    MudMambersProfile::usernameOf($user) . ' ' . MudMambersProfile::displayName($user) . ' ' . (string) $user->get('profile_bio')
+                    (string) ($card['username'] ?? '') . ' '
+                    . (string) ($card['display_name'] ?? '') . ' '
+                    . (string) ($card['profile_bio'] ?? '')
                 );
-                if (!str_contains($hay, $search)) {
-                    continue;
-                }
-            }
 
-            $items[] = self::cardPayload($grav, $user);
+                return str_contains($hay, $search);
+            }));
         }
+
+        foreach ($items as &$card) {
+            unset($card['profile_bio']);
+        }
+        unset($card);
 
         $total = count($items);
         $pages = max(1, (int) ceil($total / $perPage));
@@ -47,22 +47,6 @@ final class MudMambersDirectory
             'page' => $page,
             'pages' => $pages,
             'per_page' => $perPage,
-        ];
-    }
-
-    /** @return array<string, mixed> */
-    private static function cardPayload(Grav $grav, UserInterface $user): array
-    {
-        $bio = trim((string) $user->get('profile_bio'));
-
-        return [
-            'username' => MudMambersProfile::usernameOf($user),
-            'display_name' => MudMambersProfile::displayName($user),
-            'avatar' => MudMambersProfile::avatarUrl($grav, $user),
-            'cover' => MudMambersProfile::coverUrl($grav, $user),
-            'bio_excerpt' => MudMambersProfile::excerpt($bio, 120),
-            'tier' => (string) ($user->get('member_tier') ?: 'basic'),
-            'profile_url' => MudMambersProfile::profilePageUrl($grav, MudMambersProfile::usernameOf($user)),
         ];
     }
 }
