@@ -1,0 +1,9 @@
+PLUGIN_MAMBERS:
+  AUTH_USERNAME: "Username or email"
+  AUTH_PASSWORD: "Password"
+  AUTH_REMEMBER: "Remember me"
+  AUTH_FORGOT: "Forgot password?"
+  AUTH_LOGIN: "Log in"
+  AUTH_LOGOUT: "Log out"
+  AUTH_CANCEL: "Cancel"
+  AUTH_WELCOME: "Welcome back,"

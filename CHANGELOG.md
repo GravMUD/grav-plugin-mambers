@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.14 — 2026-06-05 (auth label strings)
+
+### Fixed
+
+- **Login form shows raw `PLUGIN_LOGIN.*` keys** — Mambers auth skin now uses `languages/en.yaml` (`PLUGIN_MAMBERS.AUTH_*`) instead of Login plugin translation keys that are not loaded in Mambers Twig context
+
 ## 0.2.13 — 2026-06-05 (self-contained login form)
 
 ### Fixed
