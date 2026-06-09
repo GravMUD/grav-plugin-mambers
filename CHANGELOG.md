@@ -1,5 +1,16 @@
 # Changelog — Mambers
 
+## 0.2.5 — 2026-06-09 (directory guest CTA)
+
+### Added
+
+- **Guest CTA on `/members`** — when logged out, shows Create account · Log in · Claim your profile links
+- Register link only when Login plugin registration is enabled
+
+### Changed
+
+- Empty directory copy — guests nudged to sign up; logged-in members told to enable **Show in public directory**
+
 ## 0.2.4 — 2026-06-09 (profile hero + theme shell)
 
 ### Added

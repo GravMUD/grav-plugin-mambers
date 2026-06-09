@@ -290,6 +290,25 @@
 
 /* ── Directory ── */
 
+.mambers-guest-cta {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  background: rgba(14, 24, 40, 0.55);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.mambers-guest-cta strong {
+  margin-right: 0.35rem;
+}
+
+.mambers-guest-sep {
+  margin: 0 0.35rem;
+  color: var(--mb-muted);
+}
+
 .mambers-directory-tools {
   margin-bottom: 1.25rem;
 }

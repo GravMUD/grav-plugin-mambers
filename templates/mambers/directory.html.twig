@@ -14,6 +14,19 @@
     </div>
   </div>
 
+  {% if not grav.user.authenticated %}
+  <p class="mambers-guest-cta">
+    <strong>Not a member yet?</strong>
+    {% if config.plugins.login.user_registration.enabled %}
+    <a class="mambers-link" href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create account</a>
+    <span class="mambers-guest-sep" aria-hidden="true">·</span>
+    {% endif %}
+    <a class="mambers-link" href="{{ base_url_relative ~ grav.login.getRoute('login', true) }}">Log in</a>
+    <span class="mambers-guest-sep" aria-hidden="true">·</span>
+    <a class="mambers-link" href="{{ (directory_url ~ '/me')|e('html_attr') }}">Claim your profile</a>
+  </p>
+  {% endif %}
+
   <div class="mambers-directory-tools">
     <form class="mambers-search" method="get" action="{{ directory_url|e('html_attr') }}">
       <input type="search" name="q" value="{{ search|e('html_attr') }}" placeholder="Search members…" aria-label="Search members">
@@ -22,7 +35,7 @@
   </div>
 
   {% if listing.items is empty %}
-  <p class="mambers-empty">No public member profiles yet. Register, log in, and claim yours at <code>/members/me</code>.</p>
+  <p class="mambers-empty">No public member profiles yet{% if grav.user.authenticated %}. Turn on <em>Show in public directory</em> on your profile to appear here.{% else %} — create an account and claim yours.{% endif %}</p>
   {% else %}
   <div class="mambers-grid">
     {% for member in listing.items %}
