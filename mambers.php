@@ -34,6 +34,7 @@ class MambersPlugin extends Plugin
             'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000], ['syncLoginIntegration', 0]],
             'onPagesInitialized' => [['ensureAuthPages', 10000], ['onPagesInitialized', 0]],
             'onPageNotFound' => ['onPagesInitialized', 0],
+            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
             'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
             'onLoginPage' => ['onLoginPage', 0],
@@ -307,6 +308,15 @@ class MambersPlugin extends Plugin
         $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers/{subpath:.+}', $controller);
     }
 
+    public function onTwigTemplatePaths(): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        MudMambersAuth::registerAuthTwigTemplatePaths($this->grav);
+    }
+
     public function onTwigLoader(): void
     {
         if (!$this->isEnabled()) {
@@ -314,12 +324,11 @@ class MambersPlugin extends Plugin
         }
 
         $path = __DIR__ . '/templates';
-        if (!is_dir($path)) {
-            return;
+        if (is_dir($path)) {
+            $this->grav['twig']->addPath($path);
         }
 
-        $this->grav['twig']->addPath($path);
-        $this->grav['twig']->twig_paths[] = $path;
+        MudMambersAuth::prependAuthTwigLoaderPaths($this->grav);
     }
 
     public function onTwigInitialized(): void

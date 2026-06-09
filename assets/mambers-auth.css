@@ -145,10 +145,51 @@
 
 .mambers-auth-card button[type="submit"],
 .mambers-auth-card .button.primary,
+.mambers-auth-btn,
+.mambers-login-form button[type="submit"],
 #grav-login.mambers-auth-card button[type="submit"],
 #grav-login.mambers-auth-card .button.primary {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #111827;
+}
+
+.mambers-auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5rem 0 1rem;
+}
+
+.mambers-auth-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+.mambers-auth-link {
+  color: #f59e0b;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.mambers-auth-link:hover {
+  text-decoration: underline;
+}
+
+.mambers-auth-btn--ghost {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+}
+
+.mambers-auth-intro {
+  margin-bottom: 1rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
 }
 
 .mambers-auth-card button[type="reset"],

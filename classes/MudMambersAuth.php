@@ -115,8 +115,6 @@ final class MudMambersAuth
             return null;
         }
 
-        self::ensureAuthTwigPaths($grav);
-
         $skins = [
             'register' => 'mambers-auth/register.html.twig',
             'login' => 'mambers-auth/login.html.twig',
@@ -129,21 +127,42 @@ final class MudMambersAuth
         return $type;
     }
 
-    public static function ensureAuthTwigPaths(Grav $grav): void
+    public static function registerAuthTwigTemplatePaths(Grav $grav): void
     {
         $locator = $grav['locator'];
-        $candidates = [
-            $locator->findResource('plugin://login/templates'),
+        $paths = [
             $locator->findResource('plugin://form/templates'),
+            $locator->findResource('plugin://login/templates'),
         ];
 
         $twig = $grav['twig'];
-        foreach ($candidates as $path) {
+        foreach ($paths as $path) {
             if (!is_string($path) || $path === '' || !is_dir($path)) {
                 continue;
             }
             if (!in_array($path, $twig->twig_paths, true)) {
                 array_unshift($twig->twig_paths, $path);
+            }
+        }
+    }
+
+    public static function prependAuthTwigLoaderPaths(Grav $grav): void
+    {
+        $locator = $grav['locator'];
+        $paths = [
+            $locator->findResource('plugin://form/templates'),
+            $locator->findResource('plugin://login/templates'),
+        ];
+
+        $twig = $grav['twig'];
+        foreach ($paths as $path) {
+            if (!is_string($path) || $path === '' || !is_dir($path)) {
+                continue;
+            }
+            try {
+                $twig->prependPath($path);
+            } catch (\Throwable) {
+                // Loader not ready yet; onTwigTemplatePaths registration covers this case.
             }
         }
     }

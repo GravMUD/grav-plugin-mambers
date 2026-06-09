@@ -1,16 +1,68 @@
-{% extends 'mambers-auth/theme-page.html.twig' %}
-
-{% block mambers_auth_content %}
-<section class="mambers-auth">
-  <div class="mambers-auth-card mambers-auth-card--login">
-    {% include 'partials/messages.html.twig' %}
-    <span class="mambers-auth-badge">Mambers</span>
-    <h1>Welcome back</h1>
-    <p class="mambers-auth-lead">Log in for your profile, member areas, and village chat identity.</p>
-    {% include 'partials/login-form.html.twig' with { show_login_form: true } %}
-    {% if config.plugins.login.user_registration.enabled %}
-    <p class="mambers-auth-foot">New here? <a href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create an account</a></p>
-    {% endif %}
-  </div>
-</section>
-{% endblock %}
+{% extends 'mambers-auth/theme-page.html.twig' %}
+
+{% block mambers_auth_content %}
+<section class="mambers-auth">
+  <div class="mambers-auth-card mambers-auth-card--login">
+    {% include 'partials/messages.html.twig' %}
+    <span class="mambers-auth-badge">Mambers</span>
+    <h1>Welcome back</h1>
+    <p class="mambers-auth-lead">Log in for your profile, member areas, and village chat identity.</p>
+
+    {% set user = grav.user %}
+    {% if user.authenticated and user.authorized %}
+      <p class="mambers-auth-welcome">{{ 'PLUGIN_LOGIN.WELCOME'|t }} <strong>{{ user.fullname ?: user.username }}</strong></p>
+      <a class="mambers-auth-btn" href="{{ uri.addNonce(base_url_relative ~ uri.path ~ '/task' ~ config.system.param_sep ~ 'login.logout', 'logout-form', 'logout-nonce')|e }}">{{ 'PLUGIN_LOGIN.BTN_LOGOUT'|t }}</a>
+    {% elseif user.authenticated and user.twofa_enabled %}
+      {% set twofa = forms('login-twofa') %}
+      <form method="post" action="{{ (base_url_relative ~ uri.path)|e }}" class="login-form mambers-login-form twofa-form">
+        {% for field in twofa.fields %}
+          {% if field.type == 'display' %}
+            <div class="mambers-auth-lead">{{ field.content|markdown|raw }}</div>
+          {% else %}
+            <div class="form-field">
+              <label for="{{ field.id }}">{{ field.label|t }}</label>
+              <input type="text" name="{{ field.name }}" id="{{ field.id }}" autofocus>
+            </div>
+          {% endif %}
+        {% endfor %}
+        <div class="mambers-auth-actions">
+          <button type="submit" class="mambers-auth-btn" name="task" value="login.twofa">{{ 'PLUGIN_LOGIN.BTN_LOGIN'|t }}</button>
+          <button type="submit" class="mambers-auth-btn mambers-auth-btn--ghost" name="task" value="login.logout">{{ 'PLUGIN_LOGIN.BTN_CANCEL'|t }}</button>
+        </div>
+        {{ nonce_field('login-form', 'login-form-nonce')|raw }}
+      </form>
+    {% else %}
+      {% if page.content %}
+      <div class="mambers-auth-intro">{{ page.content|raw }}</div>
+      {% endif %}
+      <form method="post" action="{{ (base_url_relative ~ uri.path)|e }}" class="login-form mambers-login-form">
+        <div class="form-field">
+          <label for="username">{{ 'PLUGIN_LOGIN.USERNAME_EMAIL'|t }}</label>
+          <input type="text" name="username" id="username" placeholder="{{ 'PLUGIN_LOGIN.USERNAME_EMAIL'|t }}" autofocus autocomplete="username">
+        </div>
+        <div class="form-field">
+          <label for="password">{{ 'PLUGIN_LOGIN.PASSWORD'|t }}</label>
+          <input type="password" name="password" id="password" placeholder="{{ 'PLUGIN_LOGIN.PASSWORD'|t }}" autocomplete="current-password">
+        </div>
+        <div class="mambers-auth-actions">
+          {% if config.plugins.login.rememberme.enabled %}
+          <label class="mambers-auth-remember">
+            <input type="checkbox" name="rememberme" value="1"> {{ 'PLUGIN_LOGIN.REMEMBER_ME'|t }}
+          </label>
+          {% endif %}
+          {% set forgot_route = grav.login.getRoute('forgot') %}
+          {% if forgot_route %}
+          <a class="mambers-auth-link" href="{{ base_url_relative ~ forgot_route }}">{{ 'PLUGIN_LOGIN.BTN_FORGOT'|t }}</a>
+          {% endif %}
+        </div>
+        <button type="submit" class="mambers-auth-btn" name="task" value="login.login">{{ 'PLUGIN_LOGIN.BTN_LOGIN'|t }}</button>
+        {{ nonce_field('login-form', 'login-form-nonce')|raw }}
+      </form>
+    {% endif %}
+
+    {% if config.plugins.login.user_registration.enabled %}
+    <p class="mambers-auth-foot">New here? <a href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create an account</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.13 — 2026-06-05 (self-contained login form)
+
+### Fixed
+
+- **`partials/login-form.html.twig` still not defined** after 0.2.12 — 0.2.12 only mutated `twig_paths` after the Twig loader was built (no-op); login skin now ships an inline form in `mambers-auth/login.html.twig` with no Login-plugin partial dependency; Form/Login paths register in `onTwigTemplatePaths` + `onTwigLoader`
+
 ## 0.2.12 — 2026-06-05 (login form twig paths)
 
 ### Fixed
