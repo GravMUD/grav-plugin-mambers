@@ -1,0 +1,14 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url('plugin://mambers/assets/mambers-auth.css') }}">
+<section class="mambers-auth">
+  <div class="mambers-auth-card">
+    <span class="mambers-auth-badge">Mambers Lite</span>
+    <h1>Join the village</h1>
+    <p class="mambers-auth-lead">One account for member profiles, Messenger nick lock, and gated pages. No Meetup tax. No BuddyPress bloat.</p>
+    {% include 'forms/form.html.twig' %}
+    <p class="mambers-auth-foot">Already a member? <a href="{{ base_url_relative }}/login">Log in</a> · <a href="{{ base_url_relative }}/members">Browse directory</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.2.1
+version: 0.2.2
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:
@@ -78,6 +78,14 @@ form:
               label: Member profiles + directory
               highlight: 1
               default: 1
+              validate:
+                type: bool
+            auth_skin:
+              type: toggle
+              label: Styled login + register
+              highlight: 1
+              default: 1
+              help: Mambers dark card skin on Login plugin pages (not 2005 Grav default)
               validate:
                 type: bool
             profile_route_prefix:

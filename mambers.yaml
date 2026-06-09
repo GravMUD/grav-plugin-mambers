@@ -14,6 +14,7 @@ tier_permissions:
     - site.member.pro
 member_only_routes: []
 profiles_enabled: true
+auth_skin: true
 profile_route_prefix: members
 lite_link_limit: 5
 linkz_cta_url: https://linkz.live/getgrav

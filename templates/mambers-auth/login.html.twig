@@ -1,0 +1,17 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url('plugin://mambers/assets/mambers-auth.css') }}">
+<section class="mambers-auth">
+  <div class="mambers-auth-card mambers-auth-card--login">
+    {% include 'partials/messages.html.twig' %}
+    <span class="mambers-auth-badge">Mambers</span>
+    <h1>Welcome back</h1>
+    <p class="mambers-auth-lead">Log in for your profile, member areas, and village chat identity.</p>
+    {% include 'partials/login-form.html.twig' with { show_login_form: true } %}
+    {% if config.plugins.login.user_registration.enabled %}
+    <p class="mambers-auth-foot">New here? <a href="{{ base_url_relative ~ grav.login.getRoute('register', true) }}">Create an account</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

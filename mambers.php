@@ -32,6 +32,7 @@ class MambersPlugin extends Plugin
             'onPageNotFound' => ['onPagesInitialized', 0],
             'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
+            'onLoginPage' => ['onLoginPage', 0],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
 
@@ -285,6 +286,30 @@ class MambersPlugin extends Plugin
         if (is_dir($path) && !in_array($path, $this->grav['twig']->twig_paths, true)) {
             $this->grav['twig']->twig_paths[] = $path;
         }
+    }
+
+    public function onLoginPage(): void
+    {
+        if (!$this->isEnabled() || !(bool) MudMambersConfig::get($this->grav, 'auth_skin', true)) {
+            return;
+        }
+
+        $page = $this->grav['page'] ?? null;
+        if (!$page || !method_exists($page, 'template')) {
+            return;
+        }
+
+        $template = (string) $page->template();
+        $skins = [
+            'register' => 'mambers-auth/register.html.twig',
+            'login' => 'mambers-auth/login.html.twig',
+        ];
+        if (!isset($skins[$template])) {
+            return;
+        }
+
+        $this->grav['assets']->add('plugin://mambers/assets/mambers-auth.css');
+        $this->grav['twig']->template = $skins[$template];
     }
 
     public function onApiCollectPublicRoutes(Event $event): void

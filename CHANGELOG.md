@@ -1,5 +1,12 @@
 # Changelog — Mambers
 
+## 0.2.2 — 2026-06-09 (auth skin)
+
+### Added
+
+- **Mambers auth skin** — dark glass card for Login `/user_register` + `/login` (replaces 2005 default form on dark themes)
+- Config toggle `auth_skin` (default on)
+
 ## 0.2.1 — 2026-06-09 (hotfix)
 
 ### Fixed

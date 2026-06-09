@@ -1,0 +1,202 @@
+/* Mambers auth — Login / register on dark themes (not 2005) */
+
+.mambers-auth {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.mambers-auth #grav-login {
+  max-width: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-align: left;
+}
+
+.mambers-auth #grav-login hr {
+  display: none;
+}
+
+.mambers-auth-card--login #grav-login > p,
+.mambers-auth-card--login #grav-login > h1,
+.mambers-auth-card--login #grav-login > h2 {
+  display: none;
+}
+
+.mambers-auth-card,
+.mambers-auth #grav-login,
+#grav-login.mambers-auth-card {
+  width: min(100%, 440px);
+  margin: 0 auto;
+  padding: 2rem 1.75rem 1.75rem;
+  border-radius: 18px;
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  background: rgba(7, 9, 15, 0.82);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #f0f4ff;
+  text-align: left;
+}
+
+.mambers-auth-card h1,
+#grav-login.mambers-auth-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+}
+
+.mambers-auth-lead {
+  margin: 0 0 1.5rem;
+  color: #94a3b8;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.mambers-auth-foot {
+  margin: 1.25rem 0 0;
+  font-size: 0.92rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.mambers-auth-foot a {
+  color: #f59e0b;
+  text-decoration: none;
+}
+
+.mambers-auth-foot a:hover {
+  text-decoration: underline;
+}
+
+.mambers-auth-card .form-field,
+#grav-login.mambers-auth-card .form-field {
+  margin-bottom: 1rem;
+}
+
+.mambers-auth-card label,
+#grav-login.mambers-auth-card label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.mambers-auth-card .required,
+#grav-login.mambers-auth-card .required {
+  color: #f59e0b;
+}
+
+.mambers-auth-card input[type="text"],
+.mambers-auth-card input[type="email"],
+.mambers-auth-card input[type="password"],
+#grav-login.mambers-auth-card input[type="text"],
+#grav-login.mambers-auth-card input[type="email"],
+#grav-login.mambers-auth-card input[type="password"] {
+  width: 100%;
+  padding: 0.72rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+  font: inherit;
+}
+
+.mambers-auth-card input:focus,
+#grav-login.mambers-auth-card input:focus {
+  outline: none;
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.mambers-auth-card .buttons,
+.mambers-auth-card .form-actions,
+#grav-login.mambers-auth-card .form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.mambers-auth-card button,
+.mambers-auth-card .button,
+#grav-login.mambers-auth-card button,
+#grav-login.mambers-auth-card .button {
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mambers-auth-card button[type="submit"],
+.mambers-auth-card .button.primary,
+#grav-login.mambers-auth-card button[type="submit"],
+#grav-login.mambers-auth-card .button.primary {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #111827;
+}
+
+.mambers-auth-card button[type="reset"],
+.mambers-auth-card .button.secondary,
+#grav-login.mambers-auth-card .button.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+}
+
+.mambers-auth-card .rememberme,
+#grav-login.mambers-auth-card .rememberme {
+  margin-right: auto;
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+.mambers-auth-card .form-message,
+.mambers-auth-card .alert,
+#grav-login.mambers-auth-card .alert {
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+}
+
+.mambers-auth-card .alert.error,
+#grav-login.mambers-auth-card .alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.mambers-auth-card .alert.info,
+#grav-login.mambers-auth-card .alert.info {
+  background: rgba(52, 211, 153, 0.12);
+  color: #6ee7b7;
+}
+
+.mambers-auth-badge {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
