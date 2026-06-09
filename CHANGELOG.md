@@ -1,5 +1,11 @@
 # Changelog — Mambers
 
+## 0.2.11 — 2026-06-05 (login form bootstrap)
+
+### Fixed
+
+- **`/login` shows tagline only, no form** — physical auth pages missing `template: login` (or slim plugin-only deploy) now get Login plugin page stubs with forms; Mambers auth skin applies by route and re-applies after Login plugin sets its template
+
 ## 0.2.10 — 2026-06-05 (auth class import hotfix)
 
 ### Fixed

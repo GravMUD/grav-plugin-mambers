@@ -37,6 +37,7 @@ class MambersPlugin extends Plugin
             'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
             'onLoginPage' => ['onLoginPage', 0],
+            'onTwigSiteVariables' => ['onTwigSiteVariablesAuthSkin', -99900],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
 
@@ -335,27 +336,20 @@ class MambersPlugin extends Plugin
 
     public function onLoginPage(): void
     {
-        if (!$this->isEnabled() || !(bool) MudMambersConfig::get($this->grav, 'auth_skin', true)) {
+        if (!$this->isEnabled()) {
             return;
         }
 
-        $page = $this->grav['page'] ?? null;
-        if (!$page || !method_exists($page, 'template')) {
+        MudMambersAuth::applyAuthSkin($this->grav);
+    }
+
+    public function onTwigSiteVariablesAuthSkin(): void
+    {
+        if (!$this->isEnabled() || $this->isAdmin()) {
             return;
         }
 
-        $template = (string) $page->template();
-        $skins = [
-            'register' => 'mambers-auth/register.html.twig',
-            'login' => 'mambers-auth/login.html.twig',
-        ];
-        if (!isset($skins[$template])) {
-            return;
-        }
-
-        $this->grav['assets']->add('plugin://mambers/assets/mambers-auth.css');
-        $this->grav['twig']->twig_vars['mambers_theme_layout'] = MudMambersTheme::resolveLayout($this->grav);
-        $this->grav['twig']->template = $skins[$template];
+        MudMambersAuth::applyAuthSkin($this->grav);
     }
 
     public function onApiCollectPublicRoutes(Event $event): void
