@@ -66,6 +66,55 @@ final class MudMambersTheme
         $twig->twig_vars['home_url'] = $pages->homeUrl();
     }
 
+    public static function finalizeHtml(Grav $grav, string $html): string
+    {
+        if (!str_contains($html, '</body>') || !self::messengerBubbleEnabled($grav)) {
+            return $html;
+        }
+
+        $goggrav = (array) ($grav['twig']->twig_vars['grav_mud_goggrav'] ?? []);
+        if (!empty($goggrav['mudSite'])) {
+            if (!str_contains($html, 'goggrav-messenger.js')) {
+                $snippet = '<script src="/assets/goggrav-messenger.js"></script>';
+                $html = preg_replace('/<\/body>/i', $snippet . "\n</body>", $html, 1) ?? $html;
+            }
+
+            return $html;
+        }
+
+        if (str_contains($html, 'mud-messenger-root') || str_contains($html, 'mud-messenger.js')) {
+            return $html;
+        }
+
+        try {
+            $base = rtrim((string) $grav['base_url'], '/');
+            $esc = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $launcher = (string) $grav['twig']->processTemplate('partials/mud-messenger-launcher.html.twig');
+            $snippet = '<link rel="stylesheet" href="' . $esc($base . '/user/plugins/messenger/assets/mud-messenger.css') . '">'
+                . "\n" . $launcher
+                . "\n" . '<script src="' . $esc($base . '/user/plugins/messenger/assets/mud-messenger.js') . '" defer></script>';
+            $html = preg_replace('/<\/body>/i', $snippet . "\n</body>", $html, 1) ?? $html;
+        } catch (\Throwable) {
+            return $html;
+        }
+
+        return $html;
+    }
+
+    private static function messengerBubbleEnabled(Grav $grav): bool
+    {
+        $cfg = (array) $grav['config']->get('plugins.messenger', []);
+        if ($cfg === []) {
+            $cfg = (array) $grav['config']->get('plugins.grav-mud-messenger', []);
+        }
+
+        if (array_key_exists('enabled', $cfg) && $cfg['enabled'] === false) {
+            return false;
+        }
+
+        return !empty($cfg['float_bubble']);
+    }
+
     private static function contextPage(Grav $grav): PageInterface
     {
         $prefix = trim((string) MudMambersConfig::get($grav, 'profile_route_prefix', 'members'), '/');

@@ -1,5 +1,12 @@
 # Changelog — Mambers
 
+## 0.2.6 — 2026-06-09 (virtual route output shell)
+
+### Fixed
+
+- **Messenger float bubble on Mambers pages** — virtual routes (`/members`, profiles, etc.) bypass Grav's `onOutputGenerated`; `MudMambersTheme::finalizeHtml()` now appends Messenger (GetGRAV `goggrav-messenger.js` on mud_site, or standard launcher + assets elsewhere)
+- Pattern applies to any plugin that hooks output generation — Mambers responses now get the same site shell tail as normal Grav pages
+
 ## 0.2.5 — 2026-06-09 (directory guest CTA)
 
 ### Added

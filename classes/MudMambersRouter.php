@@ -313,6 +313,7 @@ final class MudMambersRouter
         $twig->twig_vars['meta_description'] = $metaDescription;
 
         $html = (string) $twig->processTemplate('mambers/' . $template, $vars);
+        $html = MudMambersTheme::finalizeHtml($this->grav, $html);
         header('Content-Type: text/html; charset=UTF-8');
         echo $html;
         exit;
