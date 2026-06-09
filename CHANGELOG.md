@@ -1,5 +1,13 @@
 # Changelog — Mambers
 
+## 0.2.1 — 2026-06-09 (hotfix)
+
+### Fixed
+
+- **PSR-4 router boot** — `MudMambersRouter` namespace on profile routes (same class of bug as Messenger 0.3.2)
+- **Profile Twig timing** — register templates on `onTwigLoader` (Grav 2 builds loader before `onTwigInitialized`)
+- **404 fallback** — `onPageNotFound` delegates to profile router like Eventz
+
 ## 0.2.0 — 2026-06-09 (MBR-2 · profiles)
 
 ### Added

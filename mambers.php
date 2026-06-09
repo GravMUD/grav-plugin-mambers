@@ -14,6 +14,7 @@ use Grav\Plugin\Login\Events\UserLoginEvent;
 use Grav\Plugin\Mambers\MudMambersApiBridgeController;
 use Grav\Plugin\Mambers\MudMambersConfig;
 use Grav\Plugin\Mambers\MudMambersPermissions;
+use Grav\Plugin\Mambers\MudMambersRouter;
 use RocketTheme\Toolbox\Event\Event;
 
 class MambersPlugin extends Plugin
@@ -28,7 +29,8 @@ class MambersPlugin extends Plugin
             PageAuthorizeEvent::class => ['onPageAuthorizeEvent', -5000],
             'onPluginsInitialized' => [['onPluginsInitializedEarly', 100000]],
             'onPagesInitialized' => ['onPagesInitialized', 0],
-            'onPageNotFound' => ['onPageNotFound', 0],
+            'onPageNotFound' => ['onPagesInitialized', 0],
+            'onTwigLoader' => ['onTwigLoader', 0],
             'onTwigInitialized' => ['onTwigInitialized', 0],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
         ];
@@ -66,11 +68,6 @@ class MambersPlugin extends Plugin
     {
         if (!$this->isEnabled()) {
             return;
-        }
-
-        require_once __DIR__ . '/classes/MudMambersRouter.php';
-        if ((new MudMambersRouter($this->grav))->maybeHandle()) {
-            exit;
         }
 
         if (!self::supportsGravApiBridge()) {
@@ -263,6 +260,21 @@ class MambersPlugin extends Plugin
         $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers/{subpath:.+}', $controller);
     }
 
+    public function onTwigLoader(): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $path = __DIR__ . '/templates';
+        if (!is_dir($path)) {
+            return;
+        }
+
+        $this->grav['twig']->addPath($path);
+        $this->grav['twig']->twig_paths[] = $path;
+    }
+
     public function onTwigInitialized(): void
     {
         if (!$this->isEnabled()) {
@@ -270,19 +282,8 @@ class MambersPlugin extends Plugin
         }
 
         $path = __DIR__ . '/templates';
-        if (is_dir($path)) {
+        if (is_dir($path) && !in_array($path, $this->grav['twig']->twig_paths, true)) {
             $this->grav['twig']->twig_paths[] = $path;
-        }
-    }
-
-    public function onPageNotFound(): void
-    {
-        if (!$this->isEnabled() || $this->isAdmin()) {
-            return;
-        }
-
-        if ($this->handleProfiles()) {
-            exit;
         }
     }
 
