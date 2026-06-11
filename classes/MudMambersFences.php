@@ -192,7 +192,7 @@ final class MudMambersFences
     /** @param array<string, mixed> $attrs @param array<string, mixed> $data */
     private static function apiBase(array $attrs, array $data): string
     {
-        $api = trim((string) ($attrs['api'] ?? $data['api'] ?? '/api/v1/mud-mambers'));
+        $api = trim((string) ($attrs['api'] ?? $data['api'] ?? '/members/api'));
 
         return '/' . trim($api, '/');
     }

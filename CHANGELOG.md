@@ -1,5 +1,12 @@
 # Changelog — Mambers
 
+## 0.2.29 — 2026-06-11 (members API route — gravfans.live hotfix)
+
+### Fixed
+
+- **Activity feed "Could not load activity" on deploys where Grav API `/api/v1/*` returns 500** — Mambers now serves its public JSON API at `/members/api/*` via the Mambers router (same handlers as the Grav API bridge). Browser templates default to this relative path so village feed + profile activity work without the Grav API plugin stack.
+- Set `public_api_route: grav_api` in Mambers config to keep using `/api/v1/mud-mambers` when Grav API is healthy.
+
 ## 0.2.28 — 2026-06-11 (MBR-2.10 members nav + docs)
 
 ### Added

@@ -383,7 +383,7 @@ class MambersPlugin extends Plugin
         $this->grav['twig']->twig_vars['grav_mambers'] = [
             'enabled' => true,
             'name' => 'Mambers',
-            'version' => '0.2.28',
+            'version' => '0.2.29',
             'api_route' => $route,
             'api' => MudMambersConfig::apiUrl($this->grav),
         ];
@@ -430,6 +430,7 @@ class MambersPlugin extends Plugin
         $apiBase = (string) ($event['api_base'] ?? '/api/v1');
         $prefixes = (array) ($event['prefixes'] ?? []);
         $prefixes[] = rtrim($apiBase, '/') . '/' . MudMambersConfig::apiRouteSegment($this->grav);
+        $prefixes[] = MudMambersConfig::publicApiPath($this->grav);
         $event['prefixes'] = $prefixes;
     }
 

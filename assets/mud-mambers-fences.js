@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var API = window.GRAVMUD_MAMBERS_API || "/api/v1/mud-mambers";
+  var API = window.GRAVMUD_MAMBERS_API || "/members/api";
 
   function esc(s) {
     return String(s || "")

@@ -92,10 +92,25 @@ class MudMambersConfig
         return is_string($last) && $last !== '' ? $last : 'mud-mambers';
     }
 
-    /** Full browser-facing Mambers API base URL. */
+    /** Browser-facing Mambers API base URL (relative path by default). */
     public static function apiUrl(\Grav\Common\Grav $grav): string
     {
-        return self::absoluteUrl($grav, '/api/v1/' . self::apiRouteSegment($grav));
+        return self::publicApiPath($grav);
+    }
+
+    /** Relative Mambers JSON API path (default: /members/api). */
+    public static function publicApiPath(\Grav\Common\Grav $grav): string
+    {
+        if ((string) self::get($grav, 'public_api_route', 'members') === 'grav_api') {
+            return '/api/v1/' . self::apiRouteSegment($grav);
+        }
+
+        $prefix = trim((string) self::get($grav, 'profile_route_prefix', 'members'), '/');
+        if ($prefix === '') {
+            return '/api/v1/' . self::apiRouteSegment($grav);
+        }
+
+        return '/' . $prefix . '/api';
     }
 
     /** Ensure share/OG URLs include scheme + host (Grav base_url is often path-only in dev). */

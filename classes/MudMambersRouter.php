@@ -64,6 +64,13 @@ final class MudMambersRouter
             return true;
         }
 
+        if ($rest === 'api' || str_starts_with($rest, 'api/')) {
+            $action = $rest === 'api' ? '' : trim(substr($rest, strlen('api')), '/');
+            $this->handlePublicApi($action);
+
+            return true;
+        }
+
         if (strtolower($rest) === 'feed') {
             $this->renderFeed();
 
@@ -365,6 +372,15 @@ final class MudMambersRouter
         header('Cache-Control: public, max-age=86400');
         header('Content-Length: ' . (string) filesize($file));
         readfile($file);
+        exit;
+    }
+
+    /** Public JSON API on /members/api/* — works when Grav API /api/v1 is unavailable. */
+    private function handlePublicApi(string $action): void
+    {
+        require_once __DIR__ . '/MudMambersApi.php';
+        $api = new MudMambersApi($this->grav);
+        $api->handle($action);
         exit;
     }
 
