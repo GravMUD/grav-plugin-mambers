@@ -76,4 +76,87 @@ class MudMambersConfig
     {
         return (bool) self::get($source, 'enabled', false);
     }
+
+    /** Route segment registered with Grav API (e.g. mud-mambers). */
+    /** @param \Grav\Common\Grav|Config $source */
+    public static function apiRouteSegment($source): string
+    {
+        $route = trim((string) self::get($source, 'api_route', 'mud-mambers'), '/');
+        if ($route === '') {
+            return 'mud-mambers';
+        }
+
+        $parts = explode('/', $route);
+        $last = end($parts);
+
+        return is_string($last) && $last !== '' ? $last : 'mud-mambers';
+    }
+
+    /** Full browser-facing Mambers API base URL. */
+    public static function apiUrl(\Grav\Common\Grav $grav): string
+    {
+        return self::absoluteUrl($grav, '/api/v1/' . self::apiRouteSegment($grav));
+    }
+
+    /** Ensure share/OG URLs include scheme + host (Grav base_url is often path-only in dev). */
+    public static function absoluteUrl(\Grav\Common\Grav $grav, string $urlOrPath): string
+    {
+        $urlOrPath = trim($urlOrPath);
+        if ($urlOrPath === '') {
+            return '';
+        }
+
+        if (preg_match('#^https?://#i', $urlOrPath)) {
+            return $urlOrPath;
+        }
+
+        $base = rtrim((string) $grav['base_url'], '/');
+        if ($base !== '' && preg_match('#^https?://#i', $base)) {
+            return $base . '/' . ltrim($urlOrPath, '/');
+        }
+
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $path = str_starts_with($urlOrPath, '/') ? $urlOrPath : '/' . $urlOrPath;
+
+        return $scheme . '://' . $host . $path;
+    }
+
+    /** Mambers key first, then Messenger `giphy_api_key` when empty. */
+    public static function giphyApiKey(\Grav\Common\Grav $grav): string
+    {
+        $key = trim((string) self::get($grav, 'activity_giphy_api_key', ''));
+        if ($key !== '') {
+            return $key;
+        }
+
+        if (!isset($grav['config'])) {
+            return '';
+        }
+
+        $messenger = trim((string) $grav['config']->get('plugins.messenger.giphy_api_key', ''));
+        if ($messenger !== '') {
+            return $messenger;
+        }
+
+        return trim((string) $grav['config']->get('plugins.grav-mud-messenger.giphy_api_key', ''));
+    }
+
+    public static function giphyEnabled(\Grav\Common\Grav $grav): bool
+    {
+        if (self::giphyApiKey($grav) === '') {
+            return false;
+        }
+
+        $mambersKey = trim((string) self::get($grav, 'activity_giphy_api_key', ''));
+        if ($mambersKey !== '') {
+            return true;
+        }
+
+        if (!isset($grav['config'])) {
+            return false;
+        }
+
+        return (bool) $grav['config']->get('plugins.messenger.giphy_enabled', true);
+    }
 }

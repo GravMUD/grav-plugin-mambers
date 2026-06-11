@@ -39,6 +39,17 @@
   <p class="mambers-flash">Profile photo updated.</p>
   {% endif %}
 
+  {% if graph_enabled|default(false) %}
+  <div class="mambers-social-bar"
+    data-mambers-social
+    data-api="{{ activity_api|e('html_attr') }}"
+    data-profile="{{ profile.username|e('html_attr') }}"
+    data-can-edit="{{ profile.can_edit ? '1' : '0' }}"
+    {% if graph_nonce is defined %}data-nonce="{{ graph_nonce|e('html_attr') }}"{% endif %}
+    data-graph="{{ graph|json_encode|e('html_attr') }}">
+  </div>
+  {% endif %}
+
   <div class="mambers-profile-body">
     {% if profile.can_edit %}
     <nav class="mambers-account-bar" aria-label="Account">
@@ -47,43 +58,102 @@
     </nav>
     {% endif %}
 
-    {% if profile.bio %}
-    <div class="mambers-bio">{{ profile.bio|e|nl2br }}</div>
+    {% set has_links = profile.links|default([])|length > 0 %}
+    {% set has_activity = activity_enabled|default(false) %}
+    {% set show_links_tab = has_links and (has_activity or profile.can_edit) %}
+    {% set show_edit_tab = profile.can_edit %}
+    {% set show_profile_tabs = show_links_tab or show_edit_tab %}
+
+    {% if show_profile_tabs %}
+    <nav class="mambers-profile-tabs" aria-label="Profile sections" data-mambers-profile-tabs{% if saved %} data-initial-tab="edit"{% endif %}>
+      <button type="button" class="mambers-profile-tab is-active" data-profile-tab="feed" aria-selected="true">Feed</button>
+      {% if show_links_tab %}
+      <button type="button" class="mambers-profile-tab" data-profile-tab="links" aria-selected="false">Links <span class="mambers-muted">({{ profile.links|length }})</span></button>
+      {% endif %}
+      {% if show_edit_tab %}
+      <button type="button" class="mambers-profile-tab" data-profile-tab="edit" aria-selected="false">Edit</button>
+      {% endif %}
+    </nav>
     {% endif %}
 
-    {% if profile.links %}
-    <ul class="mambers-links">
-      {% for link in profile.links %}
-      <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer">{{ link.title|e }}</a></li>
-      {% endfor %}
-    </ul>
+    <div class="mambers-profile-panel is-active" data-profile-panel="feed">
+      {% if profile.bio_html %}
+      <div class="mambers-bio mambers-bio--rich">{{ profile.bio_html|raw }}</div>
+      {% elseif profile.bio %}
+      <div class="mambers-bio">{{ profile.bio|e|nl2br }}</div>
+      {% endif %}
+
+      {% if has_activity %}
+      <section class="mambers-activity-section" aria-labelledby="mambers-activity-heading">
+        <div class="mambers-activity-head">
+          <h2 id="mambers-activity-heading">Activity</h2>
+          {% if feed_url is defined %}
+          <a class="mambers-link" href="{{ feed_url|e('html_attr') }}">Village feed</a>
+          {% endif %}
+        </div>
+        <div class="mambers-activity"
+          data-mambers-activity
+          data-mode="profile"
+          data-api="{{ activity_api|e('html_attr') }}"
+          data-user="{{ profile.username|e('html_attr') }}"
+          data-can-edit="{{ profile.can_edit ? '1' : '0' }}"
+          data-giphy="{{ activity_giphy_enabled|default(false) ? '1' : '0' }}"
+          data-reactions="{{ activity_reactions_enabled|default(true) ? '1' : '0' }}"
+          {% include 'mambers/partials/activity-media-limits.html.twig' %}
+          {% if profile.can_edit and profile_write_nonce is defined %}data-nonce="{{ profile_write_nonce|e('html_attr') }}"{% elseif graph_nonce is defined %}data-nonce="{{ graph_nonce|e('html_attr') }}"{% endif %}>
+          <p class="mambers-activity-loading">Loading activity…</p>
+        </div>
+      </section>
+      {% elseif has_links %}
+      <ul class="mambers-links">
+        {% for link in profile.links %}
+        <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer" target="_blank">{{ link.title|e }}</a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    {% if show_links_tab %}
+    <div class="mambers-profile-panel" data-profile-panel="links" hidden>
+      <ul class="mambers-links mambers-links--tab">
+        {% for link in profile.links %}
+        <li><a href="{{ link.url|e('html_attr') }}" rel="noopener noreferrer" target="_blank">{{ link.title|e }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
     {% endif %}
 
     {% if profile.can_edit %}
-    <section class="mambers-edit">
-      <h2>Edit profile</h2>
-      <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
-        <input type="hidden" name="nonce" value="{{ profile_write_nonce|e('html_attr') }}">
-        <label>Bio
-          <textarea name="profile_bio" rows="4" maxlength="500">{{ profile.bio|e }}</textarea>
-        </label>
-        <label class="mambers-check">
-          <input type="checkbox" name="profile_public" value="1"{% if profile.profile_public %} checked{% endif %}>
-          Show in public directory
-        </label>
+    <div class="mambers-profile-panel{% if not show_profile_tabs %} is-active{% endif %}" data-profile-panel="edit"{% if show_profile_tabs %} hidden{% endif %}>
+      <section class="mambers-edit mambers-edit--tab">
+        <h2 class="mambers-visually-hidden">Edit profile</h2>
+        <form method="post" action="{{ base_url|e('html_attr') }}/members/{{ profile.username|e('url') }}/save">
+          <input type="hidden" name="nonce" value="{{ profile_write_nonce|e('html_attr') }}">
+          <label class="mambers-bio-label">Bio</label>
+          <div class="mambers-bio-editor" data-mambers-bio-editor
+            data-initial-html="{{ profile.bio_html|default('')|e('html_attr') }}"
+            data-initial-text="{{ profile.bio|default('')|e('html_attr') }}">
+            <input type="hidden" name="profile_bio" data-body-plain value="">
+            <input type="hidden" name="profile_bio_html" data-body-html value="">
+          </div>
+          <label class="mambers-check">
+            <input type="checkbox" name="profile_public" value="1"{% if profile.profile_public %} checked{% endif %}>
+            Show in public directory
+          </label>
 
-        <h3>Link in bio <span class="mambers-muted">(max {{ profile.max_links }})</span></h3>
-        {% for i in 0..(profile.max_links - 1) %}
-        {% set link = profile.links[i]|default(null) %}
-        <div class="mambers-link-row">
-          <input type="text" name="link_title[]" placeholder="Title" value="{{ link ? link.title|e('html_attr') : '' }}">
-          <input type="url" name="link_url[]" placeholder="https://…" value="{{ link ? link.url|e('html_attr') : '' }}">
-        </div>
-        {% endfor %}
+          <h3>Link in bio <span class="mambers-muted">(max {{ profile.max_links }})</span></h3>
+          {% for i in 0..(profile.max_links - 1) %}
+          {% set link = profile.links[i]|default(null) %}
+          <div class="mambers-link-row">
+            <input type="text" name="link_title[]" placeholder="Title" value="{{ link ? link.title|e('html_attr') : '' }}">
+            <input type="url" name="link_url[]" placeholder="https://…" value="{{ link ? link.url|e('html_attr') : '' }}">
+          </div>
+          {% endfor %}
 
-        <button type="submit" class="mambers-btn">Save profile</button>
-      </form>
-    </section>
+          <button type="submit" class="mambers-btn">Save profile</button>
+        </form>
+      </section>
+    </div>
 
     <div class="mambers-modal" id="mambers-modal-cover" hidden>
       <div class="mambers-modal-backdrop" data-mambers-close tabindex="-1"></div>

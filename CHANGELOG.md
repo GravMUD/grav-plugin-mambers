@@ -1,5 +1,86 @@
 # Changelog — Mambers
 
+## 0.2.27 — 2026-06-11 (MBR-2.9 post edit + rich bio)
+
+### Added
+
+- **Post edit** — Edit button on your posts · inline rich editor · visibility · PATCH `/activity/{id}` · link preview refreshes from body URL
+- **Rich bio** — TipTap-class toolbar + emoji picker on profile Edit tab · `profile_bio_html` stored sanitized · rich display on feed tab
+
+### Added (shared)
+
+- **`mambers-rich-editor.js`** — shared toolbar + emoji for composer, bio, and post edit
+
+## 0.2.25 — 2026-06-11 (MBR-2.8.4 OG link cards + share URL)
+
+### Changed
+
+- **Link preview cards** — full-width OG image on top, title + description + hostname below (FB-style)
+- **Share / permalink** — always copies absolute URL with `https://yoursite/...` (fixes path-only Grav `base_url` in dev)
+- **OG meta** — post pages emit `og:url`; link previews include `site_name` from hostname
+
+## 0.2.24 — 2026-06-11 (MBR-2.8.3 image compression)
+
+### Added
+
+- **Server-side image compression** — GD resize (max edge 2048px) + JPEG recompress; PNG/WebP without alpha → JPG; keeps alpha PNGs as PNG
+- **Ingest vs stored caps** — upload up to 15 MB per image when compression on; stored target 5 MB (configurable)
+- **Admin** — `activity_image_compress_enabled`, `activity_upload_max_mb`, `activity_image_max_edge_px`, `activity_image_jpeg_quality`
+
+## 0.2.23 — 2026-06-11 (MBR-2.8.2 upload UX)
+
+### Added
+
+- **Pre-upload media checks** — file list with sizes; red warnings when over limit, wrong type, or too many files; Post disabled until fixed
+- **Live upload meter** — progress bar + % during multipart post (XHR upload progress)
+- **Limits hint** — composer shows max image/video MB and counts from site config
+
+## 0.2.22 — 2026-06-11 (MBR-2.8.1 media upload + profile tabs)
+
+### Fixed
+
+- **Media posts via API** — Grav API bridge now forwards PSR-7 multipart uploads; activity `storeUploads` accepts bridge temp files (fixes “Posting…” hang / silent drop)
+- **Upload errors** — clear messages for oversize, partial, and rejected file types
+
+### Added
+
+- **Profile tabs** — Feed (default) vs Links when member has link-in-bio + activity feed
+- **Giphy fallback** — uses Messenger `giphy_api_key` when Mambers key is empty
+- **Asset cache bust** — `?v=` on activity JS/CSS
+
+## 0.2.21 — 2026-06-07 (MBR-2.8 social composer + reactions)
+
+### Added
+
+- **Rich composer** — TipTap-class toolbar (bold/italic/underline/link), emoji picker, optional Giphy GIF attach
+- **FB-style links** — paste URL in post body → live OG preview card (no separate link field); server auto-unfurls first URL
+- **Emoji reactions** — 👍❤️😂😮😢😠 on posts · `POST /activity/{id}/react`
+- **Share** — copy permalink to clipboard
+- **API** — `GET /giphy/search?q=` (proxied when `activity_giphy_api_key` set)
+
+## 0.2.20 — 2026-06-05 (MBR-2.7 social graph + FB feed UI)
+
+### Added
+
+- **Social graph** — follow / unfollow / block; JSONL edges under `user/data/mambers/graph/`; follower & following counts on profiles
+- **API** — `GET graph/stats|followers|following/{user}`, `POST|DELETE graph/follow|block/{user}`, `GET /feed?scope=following`
+- **FB-style feed UI** — image grid layouts (1–4+), lightbox modal viewer, inline video (`mp4`/`webm` up to 10MB), OG link cards in composer + posts
+- **Village feed tabs** — All vs Following for logged-in members; compose from `/members/feed`
+
+### Fixed
+
+- **Activity API URL** — templates no longer double-prefix `/api/v1/api/…`; `MudMambersConfig::apiUrl()` normalizes legacy `api_route` values
+
+## 0.2.19 — 2026-06-11 (MBR-2.5 activity feed)
+
+### Added
+
+- **Native activity feed** — JSONL posts under `user/data/mambers/activity/`, profile Activity tab, site `/members/feed`
+- **API** — `GET /feed`, `GET /activity/{username}`, `POST /activity`, `PATCH|DELETE /activity/{id}`, `POST /link-preview`
+- **Composer** — text, images (Lite caps), link OG preview cards, visibility (`public` / `members` / `private`)
+- **Fences** — `:::mambers-feed`, `:::mambers-activity{user="damo"}`
+- **Per-post share URLs** — `/members/{user}/post/{id}` with media/link OG meta
+
 ## 0.2.18 — 2026-06-11 (Grav 2 RC5 user fields)
 
 ### Fixed

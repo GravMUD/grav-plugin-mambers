@@ -1,7 +1,7 @@
 name: Mambers
 slug: mambers
 type: plugin
-version: 0.2.18
+version: 0.2.27
 description: Membership on Grav — tiers, gates, one identity across MUD community plugins. Lite = signup + site.member. Pro = Admin2 Members panel, Stripe, bridges.
 icon: users
 author:
@@ -136,6 +136,71 @@ form:
               label: Linkz.live upsell URL
               default: ''
               help: Optional footer CTA on profile pages. Leave empty to hide.
+            section_activity:
+              type: section
+              title: Activity feed (MBR-2.5)
+            activity_enabled:
+              type: toggle
+              label: Enable member activity feed
+              default: 1
+              validate:
+                type: bool
+            activity_media_max_mb:
+              type: number
+              label: Max stored image size (MB)
+              default: 5
+              help: After server-side compression — target cap per image in the feed.
+            activity_upload_max_mb:
+              type: number
+              label: Max image upload before compress (MB)
+              default: 15
+              help: Client + ingest limit when compression is on. Large 4K JPEGs are resized/recompressed to fit stored cap.
+            activity_image_compress_enabled:
+              type: toggle
+              label: Auto-compress activity images
+              default: 1
+              validate:
+                type: bool
+            activity_image_max_edge_px:
+              type: number
+              label: Max image edge (px)
+              default: 2048
+            activity_image_jpeg_quality:
+              type: number
+              label: JPEG quality (50–92)
+              default: 82
+            activity_images_per_post:
+              type: number
+              label: Max images per post (Lite)
+              default: 4
+            activity_video_max_mb:
+              type: number
+              label: Max video upload size (MB)
+              default: 10
+            activity_videos_per_post:
+              type: number
+              label: Max videos per post
+              default: 1
+            section_graph:
+              type: section
+              title: Social graph (MBR-2.7)
+            graph_enabled:
+              type: toggle
+              label: Enable follow / block social graph
+              default: 1
+              validate:
+                type: bool
+            activity_reactions_enabled:
+              type: toggle
+              label: Enable emoji reactions on posts
+              default: 1
+              validate:
+                type: bool
+            activity_giphy_api_key:
+              type: text
+              label: Giphy API key (GIF picker)
+              default: ''
+              help: Optional. Falls back to Messenger giphy_api_key when empty. Get a free key at developers.giphy.com.
         gating:
           type: tab
           title: Gating

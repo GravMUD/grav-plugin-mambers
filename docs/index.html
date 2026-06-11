@@ -3,257 +3,613 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mambers — Membership on Grav</title>
-  <meta name="description" content="Tiers, gates, one identity. Lite = signup + site.member. Pro = Members panel, Stripe, Shop bridges. MIT · Team DC.">
-  <meta property="og:title" content="Mambers">
-  <meta property="og:description" content="Grav already has users. Mambers gives sites members. >8)">
+  <title>Mambers — The village feed on Grav</title>
+  <meta name="description" content="FREE membership Lite for Grav 2.0. FB-style activity feed, profiles, follow graph, rich composer, emoji reactions. One identity across Messenger & Forumz. MIT forever.">
+  <meta property="og:title" content="Mambers — Membership on Grav">
+  <meta property="og:description" content="Grav already has users. Mambers gives them a village. >8)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Space+Grotesk:wght@600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #07090f;
       --fg: #f0f4ff;
       --muted: #94a3b8;
       --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.45);
       --violet: #a78bfa;
       --cyan: #22d3ee;
+      --rose: #fb7185;
+      --card: rgba(255, 255, 255, 0.04);
       --border: rgba(167, 139, 250, 0.2);
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: 'Outfit', system-ui, sans-serif;
+      font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
       background: var(--bg);
       color: var(--fg);
-      line-height: 1.6;
+      line-height: 1.55;
+      overflow-x: hidden;
     }
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 158, 11, 0.15), transparent 55%),
-        radial-gradient(ellipse 60% 45% at 90% 20%, rgba(167, 139, 250, 0.2), transparent 50%),
-        linear-gradient(180deg, #0c1018, var(--bg));
+        radial-gradient(ellipse 80% 55% at 15% -5%, rgba(245, 158, 11, 0.28), transparent 55%),
+        radial-gradient(ellipse 65% 50% at 95% 15%, rgba(167, 139, 250, 0.32), transparent 50%),
+        radial-gradient(ellipse 70% 55% at 50% 100%, rgba(34, 211, 238, 0.12), transparent 55%),
+        linear-gradient(180deg, #0c1018 0%, var(--bg) 42%, #05070c 100%);
+      z-index: -2;
+      animation: skyShift 20s ease-in-out infinite alternate;
+    }
+    @keyframes skyShift {
+      0% { filter: hue-rotate(0deg) brightness(1); }
+      100% { filter: hue-rotate(8deg) brightness(1.06); }
+    }
+    .grain {
+      position: fixed;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
       z-index: -1;
     }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-    h1 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(2rem, 5vw, 3rem);
-      margin: 0 0 0.5rem;
-      letter-spacing: -0.02em;
-    }
-    h1 span { color: var(--amber); }
-    .tagline { font-size: 1.15rem; color: var(--muted); max-width: 36rem; }
-    .pill {
-      display: inline-block;
-      margin: 1.25rem 0 2rem;
-      padding: 0.35rem 0.85rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(167, 139, 250, 0.08);
-      font-size: 0.85rem;
-      color: var(--cyan);
-    }
-    .tag {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-left: 0.35rem;
-    }
-    .grid {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      margin: 2rem 0;
-    }
-    .card {
-      padding: 1.25rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-    }
-    .card h2 { font-family: 'Sora', sans-serif; font-size: 1rem; margin: 0 0 0.5rem; color: var(--amber); }
-    .card p { margin: 0; font-size: 0.95rem; color: var(--muted); }
-    .card.pro { border-color: rgba(245, 158, 11, 0.35); }
-    .card.pro h2 { color: var(--violet); }
-    h2.section {
-      font-family: 'Sora', sans-serif;
-      font-size: 1.1rem;
-      margin: 2.5rem 0 1rem;
-    }
-    .tiers {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      margin: 1rem 0 2rem;
-    }
-    .tiers th, .tiers td {
-      border: 1px solid var(--border);
-      padding: 0.65rem 0.75rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    .tiers th {
-      background: rgba(167, 139, 250, 0.1);
-      color: var(--fg);
-      font-family: 'Sora', sans-serif;
-      font-weight: 600;
-    }
-    .tiers td:first-child { color: var(--muted); width: 38%; }
-    .tiers .yes { color: var(--cyan); }
-    .tiers .pro-only { color: var(--amber); }
-    .roadmap-note {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin: -0.5rem 0 1.5rem;
-    }
-    pre {
-      padding: 1rem 1.25rem;
-      border-radius: 10px;
-      background: #0f1419;
-      border: 1px solid var(--border);
-      overflow-x: auto;
-      font-size: 0.82rem;
-      line-height: 1.5;
-    }
-    code { color: var(--cyan); }
-    .cta {
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 2rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1.5rem;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 9, 15, 0.78);
+      border-bottom: 1px solid var(--border);
     }
-    a.btn {
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: var(--fg);
+    }
+    .logo span { color: var(--amber); }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .btn {
       display: inline-flex;
       align-items: center;
-      padding: 0.65rem 1.1rem;
-      border-radius: 8px;
-      text-decoration: none;
+      gap: 0.35rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
     }
-    a.primary { background: var(--amber); color: #111; }
-    a.secondary { border: 1px solid var(--border); color: var(--fg); }
-    footer { margin-top: 3rem; font-size: 0.85rem; color: var(--muted); }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-fire {
+      background: linear-gradient(135deg, var(--amber), #ea580c);
+      color: #111;
+      box-shadow: 0 0 28px var(--amber-glow);
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px var(--amber-glow); }
+      50% { box-shadow: 0 0 36px rgba(245, 158, 11, 0.55); }
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+    .btn-mint {
+      background: linear-gradient(135deg, #0891b2, var(--cyan));
+      color: #042f2e;
+    }
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--cyan);
+    }
+    .pill.hot { color: var(--amber); border-color: rgba(245, 158, 11, 0.35); }
+    .village-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      animation: floatVillage 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px rgba(245, 158, 11, 0.45));
+    }
+    @keyframes floatVillage {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.4rem, 8vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.05;
+      margin: 0 0 1rem;
+      letter-spacing: -0.03em;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--amber), var(--violet), var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-sub {
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 auto 1.25rem;
+    }
+    .hero-quote {
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--amber);
+      margin-bottom: 2rem;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+    .ticker-wrap {
+      overflow: hidden;
+      border-block: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      padding: 0.65rem 0;
+      margin: 2.5rem 0 0;
+    }
+    .ticker {
+      display: flex;
+      gap: 3rem;
+      animation: ticker 32s linear infinite;
+      white-space: nowrap;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    section { max-width: 1100px; margin: 0 auto; padding: 3.5rem 1.5rem; }
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.25rem);
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .stat {
+      text-align: center;
+      padding: 1.25rem 0.75rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .stat b {
+      display: block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--amber), var(--violet));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .stat span { font-size: 0.82rem; color: var(--muted); }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .feature {
+      padding: 1.35rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: var(--card);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      transform: translateY(-3px);
+    }
+    .feature-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .feature h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0 0 0.4rem;
+      font-size: 1.05rem;
+    }
+    .feature p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .surfaces {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    @media (min-width: 640px) { .surfaces { grid-template-columns: repeat(4, 1fr); } }
+    .surface {
+      border-radius: 0.85rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      flex-direction: column;
+    }
+    .surface:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .surface-chrome {
+      height: 5.5rem;
+      flex-shrink: 0;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.2));
+    }
+    .surface-bar { height: 0.35rem; border-radius: 999px; background: var(--amber); opacity: 0.85; }
+    .surface-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 0.35rem;
+      overflow: hidden;
+      min-height: 2.5rem;
+    }
+    .surface-grid span { background: rgba(167, 139, 250, 0.35); }
+    .surface-grid span:first-child { grid-row: span 2; background: rgba(245, 158, 11, 0.4); }
+    .surface-og {
+      flex: 1;
+      border-radius: 0.35rem;
+      background: linear-gradient(180deg, rgba(34,211,238,0.25), rgba(0,0,0,0.3));
+      min-height: 2.8rem;
+    }
+    .surface-meta {
+      padding: 0.55rem 0.65rem;
+      background: rgba(0,0,0,0.45);
+      font-size: 0.72rem;
+    }
+    .surface-meta strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--fg);
+      margin-bottom: 0.15rem;
+    }
+    .surface-meta em {
+      color: var(--muted);
+      font-style: normal;
+      font-size: 0.65rem;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .chip {
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .chip.ok { border-color: rgba(34, 211, 238, 0.4); color: var(--cyan); }
+    .chip.pro { border-color: rgba(245, 158, 11, 0.4); color: var(--amber); }
+    .terminal {
+      background: #050308;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem 1.35rem;
+      font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+      font-size: 0.88rem;
+      box-shadow: 0 0 40px rgba(167, 139, 250, 0.12);
+    }
+    .terminal .prompt { color: var(--cyan); }
+    .terminal .cmd { color: var(--fg); }
+    .terminal .comment { color: #6b7280; margin-top: 0.75rem; display: block; }
+    .lasagna {
+      border-radius: 1.25rem;
+      padding: 2rem 1.75rem;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      background:
+        linear-gradient(160deg, rgba(245, 158, 11, 0.12) 0%, rgba(167, 139, 250, 0.12) 50%, rgba(34, 211, 238, 0.06) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .lasagna::after {
+      content: '🍝';
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      font-size: 2rem;
+      opacity: 0.35;
+    }
+    .lasagna-toast {
+      margin-top: 1.25rem;
+      font-style: italic;
+      color: var(--amber);
+      font-weight: 600;
+    }
+    .tier-compare {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .tier-card {
+      padding: 1.35rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .tier-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+    }
+    .tier-card.lite h3 { color: var(--cyan); }
+    .tier-card.pro h3 { color: var(--amber); }
+    .tier-card ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .tier-card li { margin-bottom: 0.35rem; }
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem 4rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 600px) {
+      .nav-links .btn-ghost { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <p class="pill">MIT Lite · SKU <code>mambers</code> · Grav 2 + Login + Admin2</p>
-    <h1>Mam<span>bers</span></h1>
-    <p class="tagline">Membership on Grav — tiers, gates, one identity across Messenger, Forumz, and Shop. Not a second user database. (Yes, the typo is canon.)</p>
+  <div class="grain" aria-hidden="true"></div>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Lite (MIT)</h2>
-        <p>Signup hook → <code>site.member</code>. Page gating. <code>/whoami</code> API. Admin2 account fields.</p>
-      </div>
-      <div class="card pro">
-        <h2>Pro (commercial · roadmap)</h2>
-        <p>Admin2 <strong>Members</strong> panel · approval queue · Stripe tier webhooks · community plugin bridges · audit log.</p>
-      </div>
-      <div class="card">
-        <h2>Before Shop</h2>
-        <p>Mambers Lite is the release gate for Shop — customer accounts + order→username.</p>
+  <nav class="nav">
+    <a class="logo" href="#">👥 Mam<span>bers</span></a>
+    <div class="nav-links">
+      <a class="btn btn-ghost" href="#feed">Feed</a>
+      <a class="btn btn-ghost" href="#install">Install</a>
+      <a class="btn btn-fire" href="https://github.com/GravMUD/grav-plugin-mambers/releases">Get it FREE</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="pill-row">
+      <span class="pill hot">MIT Lite · Free forever</span>
+      <span class="pill">Grav 2.0</span>
+      <span class="pill">v0.2.27</span>
+      <span class="pill">Team DC</span>
+    </div>
+    <span class="village-icon" aria-hidden="true">🏘️</span>
+    <h1>Run the<br><span class="gradient">village feed</span></h1>
+    <p class="hero-sub"><strong>Mambers</strong> — membership, profiles, and a Facebook-grade activity feed on Grav. Rich composer, live image grid, emoji reactions, follow graph, one identity across Messenger &amp; Forumz. Not a second user database. (Yes, the typo is canon.)</p>
+    <p class="hero-quote">"Grav already has users. Mambers gives them a village."</p>
+    <div class="hero-actions">
+      <a class="btn btn-fire" href="https://github.com/GravMUD/grav-plugin-mambers">⭐ Star on GitHub</a>
+      <a class="btn btn-mint" href="https://github.com/GravMUD/grav-plugin-mambers/releases">Download 0.2.27</a>
+      <a class="btn btn-ghost" href="https://gravfans.live">See it live · GetGRAV!</a>
+    </div>
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker">
+        <span>fb image grid</span><span>·</span><span>live thumb staging</span><span>·</span><span>emoji picker</span><span>·</span><span>giphy gifs</span><span>·</span><span>og link cards</span><span>·</span><span>6 reactions</span><span>·</span><span>follow + block</span><span>·</span><span>post edit</span><span>·</span><span>rich bio</span><span>·</span><span>15 mb ingest → 5 mb stored</span><span>·</span><span>upload progress meter</span><span>·</span><span>one grav login</span><span>·</span>
+        <span>fb image grid</span><span>·</span><span>live thumb staging</span><span>·</span><span>emoji picker</span><span>·</span><span>giphy gifs</span><span>·</span><span>og link cards</span><span>·</span><span>6 reactions</span><span>·</span><span>follow + block</span><span>·</span><span>post edit</span><span>·</span><span>rich bio</span><span>·</span><span>15 mb ingest → 5 mb stored</span><span>·</span><span>upload progress meter</span><span>·</span><span>one grav login</span><span>·</span>
       </div>
     </div>
+  </header>
 
-    <h2 class="section">Lite vs Pro</h2>
-    <p class="roadmap-note">v0.1.0 ships <strong>Lite (MIT)</strong>. Pro features below are proposed — config-gated as they land; license keys via The Mud Bazaar.</p>
-    <table class="tiers">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>Lite (MIT)</th>
-          <th>Pro (commercial)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Signup</td>
-          <td class="yes">Public Login registration → <code>site.member</code></td>
-          <td class="pro-only">+ invite-only, approval queue, email verify</td>
-        </tr>
-        <tr>
-          <td>Tiers</td>
-          <td class="yes">Single member level (<code>basic</code>)</td>
-          <td class="pro-only"><code>basic</code>, <code>pro</code>, custom groups</td>
-        </tr>
-        <tr>
-          <td>Content gating</td>
-          <td class="yes">Page ACL + <code>member_only_routes</code></td>
-          <td class="pro-only">+ per-fence ACL in alpha compiler (future)</td>
-        </tr>
-        <tr>
-          <td>Admin UI</td>
-          <td class="yes">Admin2 <strong>Users</strong> + member fields</td>
-          <td class="pro-only"><strong>Members</strong> sidebar — overview, pending, tiers, CSV import</td>
-        </tr>
-        <tr>
-          <td>Account fields</td>
-          <td class="yes"><code>member_tier</code>, <code>member_since</code></td>
-          <td class="pro-only">+ <code>member_expires</code>, <code>member_source</code>, <code>member_notes</code></td>
-        </tr>
-        <tr>
-          <td>Member profiles + directory</td>
-          <td class="yes">Public profile · opt-in directory · link-in-bio (≤5) <span class="tag">0.2</span></td>
-          <td class="pro-only">+ unlimited links · verified / mod flair</td>
-        </tr>
-        <tr>
-          <td>Profile cover → social OG</td>
-          <td class="yes"><strong>One cover</strong> = banner + <code>og:image</code> when link is shared <span class="tag">0.2</span></td>
-          <td class="pro-only">+ full profile theming (presets, accent, layout)</td>
-        </tr>
-        <tr>
-          <td>Messenger bridge</td>
-          <td class="yes">Nick lock → Grav Login (fullname or username)</td>
-          <td class="pro-only">+ mod from <code>site.member.moderator</code></td>
-        </tr>
-        <tr>
-          <td>Forumz bridge</td>
-          <td>—</td>
-          <td class="pro-only">Session bridge → <code>$grav['user']</code>; retire duplicate forum login</td>
-        </tr>
-        <tr>
-          <td>Shop bridge</td>
-          <td>—</td>
-          <td class="pro-only">Orders keyed to <code>username</code> · member-only checkout option</td>
-        </tr>
-        <tr>
-          <td>Billing</td>
-          <td>—</td>
-          <td class="pro-only">Stripe Checkout + webhook → tier + expiry</td>
-        </tr>
-        <tr>
-          <td>Audit log</td>
-          <td>—</td>
-          <td class="pro-only">Flat-file <code>user/data/members/events.jsonl</code></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 class="section">Install</h2>
-    <pre><code>bin/gpm direct-install https://github.com/GravMUD/grav-plugin-mambers/releases/download/0.1.0/grav-plugin-mambers.zip
-bin/grav cache</code></pre>
-
-    <h2 class="section">Gate a page</h2>
-    <pre><code>access:
-  site.member: true
-login:
-  visibility: private</code></pre>
-
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/GravMUD/grav-plugin-mambers/releases/tag/0.1.0">Download 0.1.0</a>
-      <a class="btn secondary" href="https://github.com/GravMUD/grav-plugin-mambers">GitHub</a>
-      <a class="btn secondary" href="https://github.com/GravMUD/grav-plugin-mambers/discussions">Discussions</a>
+  <section>
+    <p class="section-label">The numbers don't lie</p>
+    <h2>One plugin. Maximum village.</h2>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>images per post</span></div>
+      <div class="stat"><b>6</b><span>emoji reactions</span></div>
+      <div class="stat"><b>15</b><span>MB upload ingest</span></div>
+      <div class="stat"><b>$0</b><span>Lite MIT forever</span></div>
     </div>
+  </section>
 
-    <footer>FutureVision Labs · Team DC · groundswell not fork · nothing sporked</footer>
-  </div>
+  <section>
+    <p class="section-label">Why it hits different</p>
+    <h2>Not another grey members table.</h2>
+    <div class="grid-3">
+      <div class="feature">
+        <div class="feature-icon">📸</div>
+        <h3>FB-style image posts</h3>
+        <p>1–4+ image grid layouts, lightbox modal, inline video. Live thumbnail staging with ❌ per file. Posts like Facebook — because Andy deserves receipts.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✍️</div>
+        <h3>Sexy rich composer</h3>
+        <p>Bold, italic, underline, links. Emoji picker that slaps. Optional Giphy GIFs. Paste a URL → live OG preview card before you even hit Post.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">👤</div>
+        <h3>Profiles + link in bio</h3>
+        <p>Cover photo doubles as <code>og:image</code>. Feed / Links / Edit tabs. Rich bio editor. Public directory — opt-in, not creepy.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🕸️</div>
+        <h3>Social graph</h3>
+        <p>Follow, unfollow, block. Village feed vs Following tab. Follower counts on profiles. Flat-file JSONL — no Oracle license required.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔐</div>
+        <h3>One identity</h3>
+        <p>Grav Login is the source of truth. Messenger nick lock. Forumz session bridge. Same human, same username, zero duplicate guest layers.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🚀</div>
+        <h3>Grav 2.0 native</h3>
+        <p>REST API via Grav API bridge. Multipart uploads that actually work. GD image compression. Admin2 member fields. Built for RC5 momentum.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="feed">
+    <p class="section-label">Shipped surfaces</p>
+    <h2>Feed. Profile. Composer. Cards.</h2>
+    <p style="color:var(--muted);max-width:560px">Everything you need for a community hub — activity JSONL under <code style="color:var(--cyan)">user/data/mambers/</code>, served through <code style="color:var(--cyan)">/api/v1/mud-mambers</code>.</p>
+    <div class="surfaces" style="margin-top:1.5rem">
+      <div class="surface">
+        <div class="surface-chrome">
+          <div class="surface-bar" style="width:70%"></div>
+          <div class="surface-grid"><span></span><span></span><span></span></div>
+        </div>
+        <div class="surface-meta"><strong>Image grid</strong><em>1–4 tiles + lightbox</em></div>
+      </div>
+      <div class="surface">
+        <div class="surface-chrome">
+          <div class="surface-bar" style="width:55%;background:var(--violet)"></div>
+          <div style="flex:1;border-radius:0.35rem;background:rgba(255,255,255,0.08);min-height:2.5rem"></div>
+        </div>
+        <div class="surface-meta"><strong>Rich composer</strong><em>B/I/U · emoji · GIF</em></div>
+      </div>
+      <div class="surface">
+        <div class="surface-chrome">
+          <div class="surface-bar" style="width:40%"></div>
+          <div class="surface-og"></div>
+        </div>
+        <div class="surface-meta"><strong>OG link card</strong><em>paste URL → preview</em></div>
+      </div>
+      <div class="surface">
+        <div class="surface-chrome">
+          <div class="surface-bar" style="width:50%;background:var(--cyan)"></div>
+          <div style="display:flex;gap:0.25rem;margin-top:0.2rem">
+            <span style="font-size:0.9rem">👍</span>
+            <span style="font-size:0.9rem">❤️</span>
+            <span style="font-size:0.9rem">😂</span>
+          </div>
+        </div>
+        <div class="surface-meta"><strong>Reactions + share</strong><em>toggle + permalink</em></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-label">Groundswell not fork</p>
+    <h2>We ride Grav Login. We don't replace it.</h2>
+    <p style="color:var(--muted)">Lite ships today — signup hook, <code>site.member</code>, page gates, profiles, full activity feed. Pro adds Stripe tiers, Members panel, Shop bridges. Commercial layer stays in The Mud Bazaar — no bait-and-switch on the free stack.</p>
+    <div class="chip-row">
+      <span class="chip ok">✓ public registration</span>
+      <span class="chip ok">✓ member_only_routes</span>
+      <span class="chip ok">✓ messenger identity bridge</span>
+      <span class="chip ok">✓ forumz identity bridge</span>
+      <span class="chip ok">✓ post edit + visibility</span>
+      <span class="chip pro">Pro · stripe + shop (roadmap)</span>
+    </div>
+    <div class="tier-compare">
+      <div class="tier-card lite">
+        <h3>Lite (MIT) — shipping now</h3>
+        <ul>
+          <li>Signup → <code>site.member</code> tier</li>
+          <li>Profiles, directory, link-in-bio (≤5)</li>
+          <li>Full activity feed + social graph</li>
+          <li>Cover → <code>og:image</code> on share</li>
+          <li>Messenger nick lock from Grav user</li>
+        </ul>
+      </div>
+      <div class="tier-card pro">
+        <h3>Pro (commercial · roadmap)</h3>
+        <ul>
+          <li>Admin2 Members panel + approval queue</li>
+          <li>Stripe Checkout → tier + expiry</li>
+          <li>Shop orders keyed to username</li>
+          <li>Unlimited links · verified flair</li>
+          <li>Audit log · CSV import</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <p class="section-label">Ship it</p>
+    <h2>Install in sixty seconds.</h2>
+    <div class="terminal">
+      <span class="prompt">grav $</span> <span class="cmd">bin/gpm direct-install https://github.com/GravMUD/grav-plugin-mambers/releases/download/0.2.27/grav-plugin-mambers.zip</span>
+      <span class="comment"># Needs Grav 2.0 + login + api plugins</span>
+      <span class="comment"># Enable in Admin2 → Plugins → Mambers → activity + profiles on</span>
+      <span class="comment"># Visit /members/feed — post THE HOUSE — blow socks off</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="lasagna">
+      <p class="section-label" style="color:var(--amber)">Post-dinner sprint fuel · Team DC spec</p>
+      <h2>Village Lasagna 🍝</h2>
+      <p style="color:var(--muted);margin:0">Official Mambers victory-lap fuel. Layers like a proper feed grid — pasta, rage, cheese, more pasta. <strong style="color:var(--fg)">Do not fork the recipe.</strong> Groundswell only.</p>
+      <ol style="color:var(--muted);margin:1.25rem 0 0;padding-left:1.25rem;font-size:0.9rem">
+        <li>Boil water. Contemplate flat-file storage.</li>
+        <li>Layer noodles · ricotta · sauce · repeat until JSONL-shaped</li>
+        <li>Bake until golden — same energy as upload progress hitting 100%</li>
+        <li>Serve hot beside <code>/members/feed</code> in dark mode</li>
+      </ol>
+      <p class="lasagna-toast">Toast: "Nothing forked. Nothing sporked. Chief has left the fish bowl." — then ship 0.2.27.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>FutureVision Labs · Team DC · GravMUD</strong></p>
+    <p>
+      <a href="https://github.com/GravMUD/grav-plugin-mambers">GitHub</a> ·
+      <a href="https://javabean.gravmud.site">JavaBean</a> ·
+      <a href="https://gravfans.live">GetGRAV!</a> ·
+      <a href="https://github.com/getgrav/grav/issues/4119">Listed on Grav</a> ·
+      <a href="https://gravmud.site">GravMUD HQ</a>
+    </p>
+    <p style="margin-top:1rem;font-size:0.78rem">MIT Lite · groundswell not fork · nothing sporked · backend templating since 2004</p>
+  </footer>
+
+  <!-- v3 hype build · JavaBean energy · Mambers village -->
 </body>
 </html>

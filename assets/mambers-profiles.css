@@ -205,10 +205,60 @@
   padding: 0 0.25rem;
 }
 
+.mambers-profile-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.25rem;
+  border-radius: var(--mb-radius);
+  border: 1px solid var(--mb-border);
+  background: var(--mb-panel);
+}
+
+.mambers-profile-tab {
+  flex: 1;
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  border-radius: calc(var(--mb-radius) - 2px);
+  background: transparent;
+  color: var(--mb-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mambers-profile-tab.is-active {
+  background: var(--mb-accent);
+  color: #fff;
+}
+
+.mambers-profile-panel[hidden] {
+  display: none !important;
+}
+
+.mambers-links--tab {
+  margin-top: 0.25rem;
+}
+
 .mambers-bio {
   margin: 0 0 1.25rem;
   font-size: 1.05rem;
   line-height: 1.6;
+}
+
+.mambers-bio--rich a {
+  color: #e8a060;
+}
+
+.mambers-bio-label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-weight: 600;
+}
+
+.mambers-bio-editor {
+  margin-bottom: 0.75rem;
 }
 
 .mambers-links {
@@ -240,6 +290,22 @@
   border-radius: var(--mb-radius);
   border: 1px solid var(--mb-border);
   background: var(--mb-panel);
+}
+
+.mambers-edit--tab {
+  margin-top: 0;
+}
+
+.mambers-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .mambers-edit h2 {

@@ -28,3 +28,16 @@ forumz_identity_bridge: true
 store_identity_bridge: false
 stripe_enabled: false
 require_admin_approval: false
+activity_enabled: true
+activity_media_max_mb: 5
+activity_upload_max_mb: 15
+activity_image_compress_enabled: true
+activity_image_max_edge_px: 2048
+activity_image_jpeg_quality: 82
+activity_images_per_post: 4
+activity_video_max_mb: 10
+activity_videos_per_post: 1
+activity_feed_per_page: 20
+graph_enabled: true
+activity_reactions_enabled: true
+activity_giphy_api_key: ''

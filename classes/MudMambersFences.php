@@ -22,6 +22,8 @@ final class MudMambersFences
             'mambers-login', 'member-login' => self::renderLogin($attrs, $data, $api),
             'mambers-register', 'member-register' => self::renderRegister($attrs, $data, $api),
             'mambers-auth', 'member-auth' => self::renderAuth($attrs, $data, $api),
+            'mambers-feed', 'member-feed' => self::renderFeed($attrs, $data, $api),
+            'mambers-activity', 'member-activity' => self::renderActivity($attrs, $data, $api),
             default => null,
         };
     }
@@ -131,6 +133,27 @@ final class MudMambersFences
             ],
             'Loading registration…'
         );
+    }
+
+    /** @param array<string, mixed> $attrs @param array<string, mixed> $data */
+    private static function renderFeed(array $attrs, array $data, string $api): string
+    {
+        $limit = (string) ($attrs['limit'] ?? $data['limit'] ?? '20');
+        $title = (string) ($attrs['title'] ?? $data['title'] ?? 'Village feed');
+
+        return '<section class="mud-mambers-wrap mud-mambers-wrap--feed"><h2 class="mud-mambers-subhead">' . self::esc($title)
+            . '</h2><div class="mambers-activity" data-mambers-activity data-mode="site" data-api="' . self::esc($api)
+            . '" data-limit="' . self::esc($limit) . '"><p class="mambers-activity-loading">Loading feed…</p></div></section>';
+    }
+
+    /** @param array<string, mixed> $attrs @param array<string, mixed> $data */
+    private static function renderActivity(array $attrs, array $data, string $api): string
+    {
+        $user = (string) ($attrs['user'] ?? $attrs['username'] ?? $data['user'] ?? $data['username'] ?? '');
+
+        return '<section class="mud-mambers-wrap mud-mambers-wrap--activity"><div class="mambers-activity" data-mambers-activity data-mode="profile" data-api="'
+            . self::esc($api) . '" data-user="' . self::esc($user)
+            . '"><p class="mambers-activity-loading">Loading activity…</p></div></section>';
     }
 
     /** @param array<string, mixed> $attrs @param array<string, mixed> $data */

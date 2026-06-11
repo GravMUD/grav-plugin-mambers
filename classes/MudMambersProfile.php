@@ -110,6 +110,7 @@ final class MudMambersProfile
     public static function publicPayload(Grav $grav, UserInterface $user, bool $canEdit = false): array
     {
         $bio = trim((string) $user->get('profile_bio'));
+        $bioHtml = trim((string) $user->get('profile_bio_html'));
 
         return [
             'username' => MudMambersProfile::usernameOf($user),
@@ -117,7 +118,8 @@ final class MudMambersProfile
             'avatar' => self::avatarUrl($grav, $user),
             'cover' => self::coverUrl($grav, $user),
             'bio' => $bio,
-            'bio_excerpt' => self::excerpt($bio, 160),
+            'bio_html' => $bioHtml,
+            'bio_excerpt' => self::excerpt($bio !== '' ? $bio : strip_tags($bioHtml), 160),
             'links' => self::links($user),
             'tier' => (string) ($user->get('member_tier') ?: 'basic'),
             'member_since' => $user->get('member_since'),
@@ -178,6 +180,18 @@ final class MudMambersProfile
 
         if (array_key_exists('profile_bio', $patch)) {
             $user->set('profile_bio', substr(trim((string) $patch['profile_bio']), 0, 500));
+        }
+
+        if (array_key_exists('profile_bio_html', $patch)) {
+            require_once __DIR__ . '/MudMambersActivity.php';
+            $html = MudMambersActivity::sanitizeBodyHtml(trim((string) $patch['profile_bio_html']));
+            $user->set('profile_bio_html', substr($html, 0, 2000));
+            if (!array_key_exists('profile_bio', $patch) && $html !== '') {
+                $user->set(
+                    'profile_bio',
+                    substr(trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8')), 0, 500)
+                );
+            }
         }
 
         if (array_key_exists('profile_public', $patch)) {

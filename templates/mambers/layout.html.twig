@@ -9,6 +9,9 @@
   <meta property="og:image" content="{{ og_image|e('html_attr') }}">
   <meta property="og:title" content="{{ og_title|default(page_title)|e('html_attr') }}">
   <meta property="og:description" content="{{ meta_description|default('')|e('html_attr') }}">
+  {% if og_url is defined and og_url %}
+  <meta property="og:url" content="{{ og_url|e('html_attr') }}">
+  {% endif %}
   <meta name="twitter:card" content="summary_large_image">
   {% endif %}
   <link rel="stylesheet" href="{{ css_url|e('html_attr') }}">

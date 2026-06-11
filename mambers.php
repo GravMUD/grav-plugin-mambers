@@ -267,6 +267,11 @@ class MambersPlugin extends Plugin
             'label' => 'Profile bio',
         ]);
         $fields = $this->insertFieldAfter($fields, 'profile_bio', [
+            'name' => 'profile_bio_html',
+            'type' => 'textarea',
+            'label' => 'Profile bio (HTML)',
+        ]);
+        $fields = $this->insertFieldAfter($fields, 'profile_bio_html', [
             'name' => 'profile_links',
             'type' => 'list',
             'label' => 'Link in bio',
@@ -307,8 +312,9 @@ class MambersPlugin extends Plugin
 
         $routes = $event['routes'];
         $controller = [MudMambersApiBridgeController::class, 'handle'];
-        $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers', $controller);
-        $routes->addRoute(['GET', 'PATCH', 'POST', 'OPTIONS'], '/mud-mambers/{subpath:.+}', $controller);
+        $segment = MudMambersConfig::apiRouteSegment($this->grav);
+        $routes->addRoute(['GET', 'PATCH', 'POST', 'DELETE', 'OPTIONS'], '/' . $segment, $controller);
+        $routes->addRoute(['GET', 'PATCH', 'POST', 'DELETE', 'OPTIONS'], '/' . $segment . '/{subpath:.+}', $controller);
     }
 
     public function onTwigTemplatePaths(): void
@@ -372,15 +378,14 @@ class MambersPlugin extends Plugin
 
         MudMambersAuth::publishTwigVars($this->grav);
 
-        $route = trim((string) MudMambersConfig::get($this->grav, 'api_route', 'api/mud-mambers'), '/');
-        $base = rtrim((string) $this->grav['base_url'], '/');
+        $route = MudMambersConfig::apiRouteSegment($this->grav);
 
         $this->grav['twig']->twig_vars['grav_mambers'] = [
             'enabled' => true,
             'name' => 'Mambers',
-            'version' => '0.2.18',
+            'version' => '0.2.27',
             'api_route' => $route,
-            'api' => $base . '/api/v1/' . $route,
+            'api' => MudMambersConfig::apiUrl($this->grav),
         ];
     }
 
@@ -396,8 +401,7 @@ class MambersPlugin extends Plugin
         require_once __DIR__ . '/classes/MudMambersProfile.php';
 
         $data = (array) ($event['data'] ?? []);
-        $apiRoute = trim((string) MudMambersConfig::get($this->grav, 'api_route', 'api/mud-mambers'), '/');
-        $data['api'] = $data['api'] ?? '/api/v1/' . $apiRoute;
+        $data['api'] = $data['api'] ?? MudMambersConfig::apiUrl($this->grav);
         $data['login_url'] = MudMambersAuth::loginRoute($this->grav);
         $data['register_url'] = MudMambersAuth::registerRoute($this->grav);
         $data['profile_me_url'] = MudMambersProfile::profileMeUrl($this->grav);
@@ -425,7 +429,7 @@ class MambersPlugin extends Plugin
 
         $apiBase = (string) ($event['api_base'] ?? '/api/v1');
         $prefixes = (array) ($event['prefixes'] ?? []);
-        $prefixes[] = rtrim($apiBase, '/') . '/mud-mambers';
+        $prefixes[] = rtrim($apiBase, '/') . '/' . MudMambersConfig::apiRouteSegment($this->grav);
         $event['prefixes'] = $prefixes;
     }
 
@@ -526,6 +530,10 @@ class MambersPlugin extends Plugin
         $assets->addCss('plugin://mambers/assets/mambers-profiles.css');
         $assets->addCss('plugin://mambers/assets/mud-mambers-fences.css');
         $assets->addCss('plugin://mambers/assets/mambers-auth.css');
+        if (str_contains($html, 'data-mambers-activity')) {
+            $assets->addCss('plugin://mambers/assets/mambers-activity.css');
+            $assets->addJs('plugin://mambers/assets/mambers-activity.js', ['group' => 'bottom', 'defer' => true]);
+        }
         $assets->addJs('plugin://mambers/assets/mud-mambers-fences.js', ['group' => 'bottom', 'defer' => true]);
 
         if (str_contains($html, 'data-mud-forumz') && $this->isForumzEnabled()) {

@@ -2,11 +2,20 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url('plugin://mambers/assets/mambers-profiles.css') }}">
+{% if activity_enabled|default(false) or profile.can_edit|default(false) %}
+<link rel="stylesheet" href="{{ activity_css_url|default(url('plugin://mambers/assets/mambers-activity.css')) }}?v={{ grav_mambers.version|default('0') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.3/style.css">
+{% endif %}
 <div class="mambers-shell">
   {% block mambers_content %}{% endblock %}
 </div>
 {% include 'mambers/partials/site-foot.html.twig' %}
-{% if profile.can_edit|default(false) %}
-<script src="{{ url('plugin://mambers/assets/mambers-profiles.js') }}" defer></script>
+{% if activity_enabled|default(false) or profile.can_edit|default(false) %}
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.3/index.js"></script>
+<script src="{{ url('plugin://mambers/assets/mambers-rich-editor.js') }}?v={{ grav_mambers.version|default('0') }}" defer></script>
+{% endif %}
+<script src="{{ url('plugin://mambers/assets/mambers-profiles.js') }}?v={{ grav_mambers.version|default('0') }}" defer></script>
+{% if activity_enabled|default(false) %}
+<script src="{{ activity_js_url|default(url('plugin://mambers/assets/mambers-activity.js')) }}?v={{ grav_mambers.version|default('0') }}" defer></script>
 {% endif %}
 {% endblock %}
