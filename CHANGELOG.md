@@ -1,5 +1,20 @@
 # Changelog — Mambers
 
+## 0.2.18 — 2026-06-11 (Grav 2 RC5 user fields)
+
+### Fixed
+
+- **`Call to undefined method User::username()`** on `/members/*` when logged in — Grav 2 RC5 exposes identity via `get('username')`, not Grav 1 `username()` methods; `method_exists()` was a false positive on session users
+- **`MudMambersGravUser`** — shared `username` / `fullname` / `displayName` / `avatar` helpers for profiles, directory cache, and Mambers API
+
+## 0.2.17 — 2026-06-10 (MUD fences)
+
+### Added
+
+- **`MudMambersFences`** — embed Mambers in `.mud` pages via `onMudFenceRender` (same pattern as Forumz)
+- Fence types: `::: mambers` / `mambers-directory`, `::: mambers-featured`, `::: mambers-profile` (+ optional `forumz="true"` feed), `::: mambers-login`, `::: mambers-register`, `::: mambers-auth`
+- Client hydration: `assets/mud-mambers-fences.js` + `mud-mambers-fences.css` (auto-enqueued when a fence renders)
+
 ## 0.2.16 — 2026-06-05 (inline register form)
 
 ### Fixed

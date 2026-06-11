@@ -24,7 +24,7 @@ profile_route_prefix: members
 lite_link_limit: 5
 linkz_cta_url: ''
 messenger_identity_bridge: true
-forumz_identity_bridge: false
+forumz_identity_bridge: true
 store_identity_bridge: false
 stripe_enabled: false
 require_admin_approval: false

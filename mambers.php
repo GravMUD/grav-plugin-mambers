@@ -40,6 +40,7 @@ class MambersPlugin extends Plugin
             'onLoginPage' => ['onLoginPage', 0],
             'onTwigSiteVariables' => [['onTwigSiteVariablesAuthSkin', -99900], ['onTwigSiteVariablesMambers', -99800]],
             'onApiBlueprintResolved' => ['onApiBlueprintResolved', 0],
+            'onMudFenceRender' => ['onMudFenceRender', 0],
         ];
 
         $events['onApiRegisterRoutes'] = ['onApiRegisterRoutes', 0];
@@ -370,6 +371,50 @@ class MambersPlugin extends Plugin
         }
 
         MudMambersAuth::publishTwigVars($this->grav);
+
+        $route = trim((string) MudMambersConfig::get($this->grav, 'api_route', 'api/mud-mambers'), '/');
+        $base = rtrim((string) $this->grav['base_url'], '/');
+
+        $this->grav['twig']->twig_vars['grav_mambers'] = [
+            'enabled' => true,
+            'name' => 'Mambers',
+            'version' => '0.2.18',
+            'api_route' => $route,
+            'api' => $base . '/api/v1/' . $route,
+        ];
+    }
+
+    /** @param Event $event */
+    public function onMudFenceRender(Event $event): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        require_once __DIR__ . '/classes/MudMambersFences.php';
+        require_once __DIR__ . '/classes/MudMambersAuth.php';
+        require_once __DIR__ . '/classes/MudMambersProfile.php';
+
+        $data = (array) ($event['data'] ?? []);
+        $apiRoute = trim((string) MudMambersConfig::get($this->grav, 'api_route', 'api/mud-mambers'), '/');
+        $data['api'] = $data['api'] ?? '/api/v1/' . $apiRoute;
+        $data['login_url'] = MudMambersAuth::loginRoute($this->grav);
+        $data['register_url'] = MudMambersAuth::registerRoute($this->grav);
+        $data['profile_me_url'] = MudMambersProfile::profileMeUrl($this->grav);
+        $data['registration_open'] = MudMambersAuth::registrationOpen($this->grav);
+
+        $html = \Grav\Plugin\Mambers\MudMambersFences::render(
+            strtolower((string) ($event['type'] ?? '')),
+            (array) ($event['node'] ?? []),
+            (array) ($event['attrs'] ?? []),
+            (string) ($event['body'] ?? ''),
+            $data
+        );
+
+        if ($html !== null && $html !== '') {
+            $event['html'] = $html;
+            $this->enqueueFenceAssets($html);
+        }
     }
 
     public function onApiCollectPublicRoutes(Event $event): void
@@ -467,5 +512,29 @@ class MambersPlugin extends Plugin
         require_once __DIR__ . '/classes/MudMambersRouter.php';
 
         return (new MudMambersRouter($this->grav))->maybeHandle();
+    }
+
+    private function enqueueFenceAssets(string $html): void
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+
+        $assets = $this->grav['assets'];
+        $assets->addCss('plugin://mambers/assets/mambers-profiles.css');
+        $assets->addCss('plugin://mambers/assets/mud-mambers-fences.css');
+        $assets->addCss('plugin://mambers/assets/mambers-auth.css');
+        $assets->addJs('plugin://mambers/assets/mud-mambers-fences.js', ['group' => 'bottom', 'defer' => true]);
+
+        if (str_contains($html, 'data-mud-forumz') && $this->isForumzEnabled()) {
+            $assets->addJs('plugin://mud-forumz/assets/mud-forumz.js', ['group' => 'bottom', 'defer' => true]);
+        }
+    }
+
+    private function isForumzEnabled(): bool
+    {
+        return (bool) $this->grav['config']->get('plugins.mud-forumz.enabled', false);
     }
 }

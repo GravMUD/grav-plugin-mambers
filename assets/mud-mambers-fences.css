@@ -1,0 +1,87 @@
+/* Mambers fence mounts — reuses mambers-profiles.css card tokens */
+.mud-mambers-wrap {
+  margin: 1.5rem 0;
+}
+
+.mud-mambers-head {
+  margin-bottom: 1rem;
+}
+
+.mud-mambers-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.mud-mambers-subhead {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.mud-mambers-loading {
+  color: var(--mb-muted, #94a3b8);
+  font-style: italic;
+}
+
+.mud-mambers-wrap--profile-forumz .mud-mambers-forumz-feed {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--mb-border, rgba(255, 255, 255, 0.1));
+}
+
+.mambers-profile--fence .mambers-bio {
+  white-space: pre-wrap;
+}
+
+.mambers-auth-card {
+  max-width: 28rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--mb-radius, 14px);
+  border: 1px solid var(--mb-border, rgba(255, 255, 255, 0.1));
+  background: var(--mb-panel, rgba(14, 24, 40, 0.78));
+}
+
+.mambers-auth-card .mambers-auth-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mb-accent, #f59e0b);
+  margin-bottom: 0.5rem;
+}
+
+.mambers-auth-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.25rem;
+}
+
+.mambers-auth-card .mambers-auth-lead {
+  margin: 0 0 1rem;
+  color: var(--mb-muted, #94a3b8);
+}
+
+.mambers-auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mambers-auth-btn {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  background: var(--mb-accent, #f59e0b);
+  color: #111;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mambers-auth-btn--ghost {
+  background: transparent;
+  color: var(--mb-fg, #f0f4ff);
+  border: 1px solid var(--mb-border, rgba(255, 255, 255, 0.2));
+}
+
+.mambers-grid--featured .mambers-card {
+  border-color: color-mix(in srgb, var(--mb-accent, #f59e0b) 35%, transparent);
+}

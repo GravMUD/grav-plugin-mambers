@@ -7,6 +7,8 @@ namespace Grav\Plugin\Mambers;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 
+require_once __DIR__ . '/MudMambersGravUser.php';
+
 final class MudMambersProfile
 {
     public static function maxLinks(Grav $grav): int
@@ -16,11 +18,7 @@ final class MudMambersProfile
 
     public static function usernameOf(UserInterface $user): string
     {
-        if (method_exists($user, 'username')) {
-            return (string) $user->username();
-        }
-
-        return (string) ($user->username ?? $user->get('username') ?? '');
+        return MudMambersGravUser::username($user);
     }
 
     public static function isPublic(UserInterface $user): bool
