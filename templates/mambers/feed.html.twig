@@ -12,9 +12,9 @@
 
     <p class="mambers-muted">Recent posts from members — Mambers activity, not Forumz.</p>
 
-    <p><a class="mambers-link" href="{{ directory_url|e('html_attr') }}">← Member directory</a></p>
-
   </header>
+
+  {% include 'mambers/partials/members-nav.html.twig' with { members_nav_active: 'feed' } %}
 
 
 

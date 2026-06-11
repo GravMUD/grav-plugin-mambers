@@ -383,7 +383,7 @@ class MambersPlugin extends Plugin
         $this->grav['twig']->twig_vars['grav_mambers'] = [
             'enabled' => true,
             'name' => 'Mambers',
-            'version' => '0.2.27',
+            'version' => '0.2.28',
             'api_route' => $route,
             'api' => MudMambersConfig::apiUrl($this->grav),
         ];

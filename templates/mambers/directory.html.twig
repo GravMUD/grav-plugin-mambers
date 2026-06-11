@@ -28,7 +28,7 @@
 
   </div>
 
-
+  {% include 'mambers/partials/members-nav.html.twig' with { members_nav_active: 'directory' } %}
 
   {% if not grav.user.authenticated %}
 

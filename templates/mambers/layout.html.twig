@@ -20,6 +20,9 @@
   <header class="mambers-header">
     <a class="mambers-brand" href="{{ base_url|e('html_attr') }}/">← {{ site_title|e }}</a>
     <a class="mambers-nav-link" href="{{ directory_url|default(base_url ~ '/members')|e('html_attr') }}">Members</a>
+    {% if activity_enabled|default(false) and feed_url is defined %}
+    <a class="mambers-nav-link" href="{{ feed_url|e('html_attr') }}">Village feed</a>
+    {% endif %}
   </header>
   <main class="mambers-main">
     {% block content %}{% endblock %}

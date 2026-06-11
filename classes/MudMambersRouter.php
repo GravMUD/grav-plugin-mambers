@@ -545,6 +545,17 @@ final class MudMambersRouter
 
         $vars['site_title'] = $siteTitle;
         $vars['base_url'] = rtrim((string) $this->grav['base_url'], '/');
+        $prefix = trim((string) MudMambersConfig::get($this->grav, 'profile_route_prefix', 'members'), '/');
+        if (!isset($vars['directory_url'])) {
+            $vars['directory_url'] = $vars['base_url'] . '/' . $prefix;
+        }
+        require_once __DIR__ . '/MudMambersActivity.php';
+        if (!isset($vars['activity_enabled'])) {
+            $vars['activity_enabled'] = MudMambersActivity::isEnabled($this->grav);
+        }
+        if ($vars['activity_enabled'] && !isset($vars['feed_url'])) {
+            $vars['feed_url'] = MudMambersActivity::feedPageUrl($this->grav);
+        }
         $vars['css_url'] = $vars['base_url'] . '/user/plugins/mambers/assets/mambers-profiles.css';
         $vars['activity_css_url'] = $vars['base_url'] . '/user/plugins/mambers/assets/mambers-activity.css';
         $vars['activity_js_url'] = $vars['base_url'] . '/user/plugins/mambers/assets/mambers-activity.js';

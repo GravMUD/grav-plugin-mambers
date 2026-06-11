@@ -1,0 +1,6 @@
+{% if activity_enabled|default(false) and feed_url is defined %}
+<nav class="mambers-members-nav" aria-label="Members">
+  <a class="mambers-members-nav-link{% if members_nav_active|default('') == 'directory' %} is-active{% endif %}" href="{{ directory_url|e('html_attr') }}">Directory</a>
+  <a class="mambers-members-nav-link{% if members_nav_active|default('') == 'feed' %} is-active{% endif %}" href="{{ feed_url|e('html_attr') }}">Village feed</a>
+</nav>
+{% endif %}

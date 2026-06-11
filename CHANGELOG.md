@@ -1,5 +1,15 @@
 # Changelog — Mambers
 
+## 0.2.28 — 2026-06-11 (MBR-2.10 members nav + docs)
+
+### Added
+
+- **Members nav** — Directory | Village feed pill links on `/members` and `/members/feed`
+
+### Changed
+
+- **Hype docs** — Pro roadmap: fan pages & member groups (shop line removed)
+
 ## 0.2.27 — 2026-06-11 (MBR-2.9 post edit + rich bio)
 
 ### Added

@@ -375,6 +375,37 @@
   color: var(--mb-muted);
 }
 
+.mambers-members-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.mambers-members-nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--mb-border);
+  background: var(--mb-panel);
+  color: var(--mb-fg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.mambers-members-nav-link:hover {
+  border-color: rgba(232, 160, 96, 0.45);
+}
+
+.mambers-members-nav-link.is-active {
+  border-color: rgba(232, 160, 96, 0.65);
+  background: rgba(232, 160, 96, 0.14);
+  color: #e8a060;
+}
+
 .mambers-directory-tools {
   margin-bottom: 1.25rem;
 }
