@@ -77,7 +77,7 @@ final class MudMambersFences
     {
         $user = (string) ($attrs['user'] ?? $attrs['username'] ?? $data['user'] ?? $data['username'] ?? '');
         $forumz = self::truthy($attrs['forumz'] ?? $data['forumz'] ?? $attrs['forum_feed'] ?? $data['forum_feed'] ?? false);
-        $forumzApi = trim((string) ($attrs['forumz_api'] ?? $data['forumz_api'] ?? '/api/mud-forumz'));
+        $forumzApi = trim((string) ($attrs['forumz_api'] ?? $data['forumz_api'] ?? '/api/forumz'));
         $forumBoard = (string) ($attrs['board'] ?? $data['board'] ?? 'general');
 
         $extra = [
@@ -93,9 +93,9 @@ final class MudMambersFences
             return $profile;
         }
 
-        $forumzMount = '<div class="mud-forumz mud-forumz--mambers-feed" data-mud-forumz data-mode="profile" data-user="'
+        $forumzMount = '<div class="forumz forumz--mambers-feed" data-forumz data-mode="profile" data-user="'
             . self::esc($user) . '" data-api="' . self::esc('/' . trim($forumzApi, '/'))
-            . '"><p class="mud-forumz-loading">Loading forum activity…</p></div>';
+            . '"><p class="forumz-loading">Loading forum activity…</p></div>';
 
         return '<section class="mud-mambers-wrap mud-mambers-wrap--profile-forumz">'
             . $profile

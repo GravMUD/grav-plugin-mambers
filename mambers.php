@@ -537,13 +537,14 @@ class MambersPlugin extends Plugin
         }
         $assets->addJs('plugin://mambers/assets/mud-mambers-fences.js', ['group' => 'bottom', 'defer' => true]);
 
-        if (str_contains($html, 'data-mud-forumz') && $this->isForumzEnabled()) {
-            $assets->addJs('plugin://mud-forumz/assets/mud-forumz.js', ['group' => 'bottom', 'defer' => true]);
+        if (str_contains($html, 'data-forumz') && $this->isForumzEnabled()) {
+            $assets->addCss('plugin://forumz/assets/forumz.css');
+            $assets->addJs('plugin://forumz/assets/forumz.js', ['group' => 'bottom', 'defer' => true]);
         }
     }
 
     private function isForumzEnabled(): bool
     {
-        return (bool) $this->grav['config']->get('plugins.mud-forumz.enabled', false);
+        return (bool) $this->grav['config']->get('plugins.forumz.enabled', $this->grav['config']->get('plugins.mud-forumz.enabled', false));
     }
 }
